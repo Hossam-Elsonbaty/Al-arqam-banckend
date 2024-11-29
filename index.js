@@ -30,7 +30,7 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS, 
   },
 });
-app.get('/api/contact-us', async (req, res) => {
+app.get('https://al-arqam-banckend-p8q9.vercel.app/api/contact-us', async (req, res) => {
   try {
     // Fetch all entries from the database
     const contacts = await contactUsModel.find();
