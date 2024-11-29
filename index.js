@@ -13,6 +13,10 @@ app.use(cors({
   origin: '*', // Allows all origins during testing. Replace '*' with your frontend URL in production.
 }));
 const PORT = process.env.PORT || 5555;
+app.listen(PORT, () => {
+  connectDB();
+  console.log(`App is listening to port`);
+});
 // // Serve static files from React build directory
 // app.use(express.static(path.join(__dirname, '../build')));
 
@@ -34,7 +38,6 @@ const transporter = nodemailer.createTransport({
 });
 app.get('/api/contact-us', async (req, res) => {
   console.log('Incoming request to /api/contact-us');
-  connectDB().then(() => console.log('Database connected')).catch(err => console.error('Database connection error:', err));
   try {
     const contacts = await contactUsModel.find();
     console.log('Fetched contacts:', contacts);
@@ -159,7 +162,4 @@ app.post('/api/users-application', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  connectDB();
-  console.log(`App is listening to port`);
-});
+
