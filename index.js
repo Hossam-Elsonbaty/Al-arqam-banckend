@@ -30,6 +30,18 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS, 
   },
 });
+app.get('/api/contact-us', async (req, res) => {
+  try {
+    // Fetch all entries from the database
+    const contacts = await contactUsModel.find();
+    
+    // Send the data as a response
+    res.status(200).json(contacts);
+  } catch (error) {
+    console.error('Error fetching data from database:', error);
+    res.status(500).json({ message: 'Server error, please try again later.' });
+  }
+});
 app.post ('/api/contact-us', async (req, res) => {
   const data = req.body;
   console.log(data);
