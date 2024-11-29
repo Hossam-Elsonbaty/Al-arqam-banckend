@@ -6,23 +6,18 @@ import nodemailer from 'nodemailer';
 import models from './models/user.model.js';
 
 const { userApplication, contactUsModel } = models;
-dotenv.config()
 const app = express();
+dotenv.config();
+
+// Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: '', // Allows all origins during testing. Replace '' with your frontend URL in production.
+}));
+
 const PORT = process.env.PORT || 5555;
-// // Serve static files from React build directory
-// app.use(express.static(path.join(__dirname, '../build')));
 
-// // API routes
-// app.get('/api/hello', (req, res) => {
-//   res.json({ message: "Hello from API!" });
-// });
-
-// // Catch-all route to serve React app
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname, '../build/index.html'));
-// });
+// Nodemailer transporter
 const transporter = nodemailer.createTransport({
   service: 'Gmail', 
   auth: {
@@ -30,31 +25,29 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS, 
   },
 });
-app.get('https://al-arqam-banckend-p8q9.vercel.app/api/contact-us', async (req, res) => {
+
+// Routes
+app.get('/api/contact-us', async (req, res) => {
+  console.log('Incoming request to /api/contact-us');
   try {
-    // Fetch all entries from the database
     const contacts = await contactUsModel.find();
-    
-    // Send the data as a response
+    console.log('Fetched contacts:', contacts);
     res.status(200).json(contacts);
   } catch (error) {
     console.error('Error fetching data from database:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
-app.post ('/api/contact-us', async (req, res) => {
+
+app.post('/api/contact-us', async (req, res) => {
   const data = req.body;
   console.log(data);
-  if(
-    !data.name || 
-    !data.email || 
-    !data.message
-  ){
+  if (!data.name || !data.email || !data.message) {
     return res.status(400).json({ message: 'Please fill in all fields.' });
   }
   const newContactUs = new contactUsModel(data);
   try {
-    await newContactUs.save()
+    await newContactUs.save();
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: 'mostafasonbaty0@gmail.com',
@@ -68,12 +61,12 @@ app.post ('/api/contact-us', async (req, res) => {
         console.log('Email sent:', info.response);
       }
     });
-  } 
-  catch{
-    console.error('Error sending email:', error);
-    return res.status(500).json({ message: 'Server error, please try again later.' });
+    res.status(201).json({ success: true, data: newContactUs });
+  } catch (error) {
+    console.error('Error saving contact us data:', error);
+    res.status(500).json({ message: 'Server error, please try again later.' });
   }
-})
+});
 app.post('/api/users-application', async (req, res) => {
   const application = req.body;
   if (
@@ -156,8 +149,21 @@ app.post('/api/users-application', async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 });
+// Additional POST route logic...
 
-app.listen(PORT, () => {
-  connectDB();
-  console.log(`App is listening to port`);
-});
+// Start the server only after the DB is connected
+const startServer = async () => {
+  try {
+    await connectDB(); // Wait for DB connection to establish
+    console.log('Database connected successfully.');
+    app.listen(PORT, () => {
+      console.log(`App is listening on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to connect to the database:', error);
+    process.exit(1); // Exit the application if DB connection fails
+  }
+};
+
+// Start the server
+startServer();
