@@ -7,28 +7,17 @@ import models from './models/user.model.js';
 
 const { userApplication, contactUsModel } = models;
 const app = express();
-dotenv.config()
+dotenv.config();
+
+// Middleware
 app.use(express.json());
 app.use(cors({
   origin: '*', // Allows all origins during testing. Replace '*' with your frontend URL in production.
 }));
+
 const PORT = process.env.PORT || 5555;
-app.listen(PORT, () => {
-  connectDB();
-  console.log(`App is listening to port`);
-});
-// // Serve static files from React build directory
-// app.use(express.static(path.join(__dirname, '../build')));
 
-// // API routes
-// app.get('/api/hello', (req, res) => {
-//   res.json({ message: "Hello from API!" });
-// });
-
-// // Catch-all route to serve React app
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname, '../build/index.html'));
-// });
+// Nodemailer transporter
 const transporter = nodemailer.createTransport({
   service: 'Gmail', 
   auth: {
@@ -36,6 +25,8 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS, 
   },
 });
+
+// Routes
 app.get('/api/contact-us', async (req, res) => {
   console.log('Incoming request to /api/contact-us');
   try {
@@ -47,19 +38,16 @@ app.get('/api/contact-us', async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
-app.post ('/api/contact-us', async (req, res) => {
+
+app.post('/api/contact-us', async (req, res) => {
   const data = req.body;
   console.log(data);
-  if(
-    !data.name || 
-    !data.email || 
-    !data.message
-  ){
+  if (!data.name || !data.email || !data.message) {
     return res.status(400).json({ message: 'Please fill in all fields.' });
   }
   const newContactUs = new contactUsModel(data);
   try {
-    await newContactUs.save()
+    await newContactUs.save();
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: 'mostafasonbaty0@gmail.com',
@@ -73,93 +61,28 @@ app.post ('/api/contact-us', async (req, res) => {
         console.log('Email sent:', info.response);
       }
     });
-  } 
-  catch{
-    console.error('Error sending email:', error);
-    return res.status(500).json({ message: 'Server error, please try again later.' });
-  }
-})
-app.post('/api/users-application', async (req, res) => {
-  const application = req.body;
-  if (
-    !application.firstName || 
-    !application.lastName || 
-    !application.email || 
-    !application.phoneNumber || 
-    !application.address || 
-    !application.city || 
-    !application.zipCode
-  ) {
-    return res.status(400).json({ message: "Please fill in all required fields" });
-  }
-  if (!application.isParent) {
-    if (!application.dob || !application.selectedProgram || !application.gender) {
-      return res.status(400).json({ message: "Students must provide Date of Birth and Selected Program" });
-    }
-  }
-  if (application.isParent) {
-    if (!application.children || application.children.length < 1) {
-      return res.status(400).json({ message: "Parents must register at least one child" });
-    }
-    const invalidChild = application.children.some(child =>
-      !child.firstName || !child.lastName || !child.gender || !child.dob || !child.selectedProgram
-    );
-    if (invalidChild) {
-      return res.status(400).json({ message: "Please fill in all fields for each child" });
-    }
-  }
-  const newApplication = new userApplication(application);
-  try {
-    await newApplication.save();
-    let emailContent = `
-      A new application has been submitted:
-      Name: ${application.firstName} ${application.lastName}
-      Email: ${application.email}
-      Phone: ${application.phoneNumber}
-      Gender: ${application.gender}
-      Address: ${application.address}
-      City: ${application.city}
-      Zip Code: ${application.zipCode}
-    `;
-    if (!application.isParent) {
-      emailContent += `
-        Role: Student
-        Date of Birth: ${application.dob}
-        Selected Program: ${application.selectedProgram}
-      `;
-    } else {
-      emailContent += `
-        Role: Parent
-        Children:
-      `;
-      application.children.forEach((child, index) => {
-        emailContent += `
-          Child ${index + 1}:
-          Name: ${child.firstName} ${child.lastName}
-          Gender: ${child.gender}
-          Date of Birth: ${child.dob}
-          Selected Program: ${child.selectedProgram}
-        `;
-      });
-    }
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: 'mostafasonbaty0@gmail.com',
-      subject: 'New Application Submitted',
-      text: emailContent,
-    };
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('Error sending email:', error);
-      } else {
-        console.log('Email sent:', info.response);
-      }
-    });
-    res.status(201).json({ success: true, data: newApplication });
+    res.status(201).json({ success: true, data: newContactUs });
   } catch (error) {
-    console.error("Error in create application:", error.message);
-    res.status(500).json({ success: false, message: "Server Error" });
+    console.error('Error saving contact us data:', error);
+    res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
 
+// Additional POST route logic...
 
+// Start the server only after the DB is connected
+const startServer = async () => {
+  try {
+    await connectDB(); // Wait for DB connection to establish
+    console.log('Database connected successfully.');
+    app.listen(PORT, () => {
+      console.log(`App is listening on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to connect to the database:', error);
+    process.exit(1); // Exit the application if DB connection fails
+  }
+};
+
+// Start the server
+startServer();
