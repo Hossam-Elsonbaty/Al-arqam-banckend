@@ -48,6 +48,7 @@ app.post('/api/contact-us', async (req, res) => {
   const newContactUs = new contactUsModel(data);
   try {
     await newContactUs.save();
+    console.log("data saved in db");
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: 'mostafasonbaty0@gmail.com',
@@ -55,6 +56,7 @@ app.post('/api/contact-us', async (req, res) => {
       text: `Name: ${data.name}\nEmail: ${data.email}\nMessage: ${data.message}`
     };
     transporter.sendMail(mailOptions, (error, info) => {
+      console.log("opened transporter.sendMail")
       if (error) {
         console.error('Error sending email:', error);
       } else {
