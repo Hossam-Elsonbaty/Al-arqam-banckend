@@ -6,10 +6,12 @@ import nodemailer from 'nodemailer';
 import models from './models/user.model.js';
 
 const { userApplication, contactUsModel } = models;
-dotenv.config()
 const app = express();
+dotenv.config()
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: '*', // Allows all origins during testing. Replace '*' with your frontend URL in production.
+}));
 const PORT = process.env.PORT || 5555;
 // // Serve static files from React build directory
 // app.use(express.static(path.join(__dirname, '../build')));
@@ -32,10 +34,7 @@ const transporter = nodemailer.createTransport({
 });
 app.get('/api/contact-us', async (req, res) => {
   try {
-    // Fetch all entries from the database
     const contacts = await contactUsModel.find();
-    
-    // Send the data as a response
     res.status(200).json(contacts);
   } catch (error) {
     console.error('Error fetching data from database:', error);
