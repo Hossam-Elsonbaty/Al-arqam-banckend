@@ -34,6 +34,7 @@ const transporter = nodemailer.createTransport({
 });
 app.get('/api/contact-us', async (req, res) => {
   console.log('Incoming request to /api/contact-us');
+  connectDB().then(() => console.log('Database connected')).catch(err => console.error('Database connection error:', err));
   try {
     const contacts = await contactUsModel.find();
     console.log('Fetched contacts:', contacts);
