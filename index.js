@@ -12,7 +12,7 @@ dotenv.config();
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: '', // Allows all origins during testing. Replace '' with your frontend URL in production.
+  origin: '*', // Allows all origins during testing. Replace '*' with your frontend URL in production.
 }));
 
 const PORT = process.env.PORT || 5555;
