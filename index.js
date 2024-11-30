@@ -184,14 +184,4 @@ const startServer = async () => {
 
 // Start the server
 startServer();
-// const message = {
-//   to: 'alarqamacademy101@gmail.com', // Receiver's email
-//   from: 'armaggg3@gmail.com', // Use a verified sender
-//   subject: 'Contact Us',
-//   text: 'hello from email',
-//   html: '<h1>hello from email</h1>',
-// };
-// sgMail.send(message)
-// .then((res)=>{console.log("done");})
-// .catch((err)=>{console.log(err.message);})
 
