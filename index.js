@@ -52,7 +52,7 @@ app.post('/api/contact-us', async (req, res) => {
     // SendGrid email options
     const msg = {
       to: 'mostafasonbaty0@gmail.com', // Receiver's email
-      from: 'example@yourdomain.com', // Use a verified sender
+      from: 'armaggg3@gmail.com', // Use a verified sender
       subject: 'Contact Us',
       text: `Name: ${data.name}\nEmail: ${data.email}\nMessage: ${data.message}`,
     };
