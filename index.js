@@ -49,7 +49,7 @@ app.post('/api/contact-us', async (req, res) => {
   // from: process.env.EMAIL_USER,
   try {
     const mailOptions = {
-      from: 'armaggg3@gmail.com@gmail.com',
+      from: 'armaggg3@gmail.com',
       to: 'mostafasonbaty0@gmail.com',
       subject: 'Contact Us',
       text: `Name: ${data.name}\nEmail: ${data.email}\nMessage: ${data.message}`
