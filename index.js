@@ -8,7 +8,7 @@ import sgMail from '@sendgrid/mail';
 const { userApplication, contactUsModel } = models;
 const app = express();
 dotenv.config();
-
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 // Middleware
 app.use(express.json());
 app.use(cors({
