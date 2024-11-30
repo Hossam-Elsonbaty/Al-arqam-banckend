@@ -123,32 +123,32 @@ app.post('/api/users-application', async (req, res) => {
     await newApplication.save();
     let emailContent = `
       A new application has been submitted:
-      Name: ${application.firstName} ${application.lastName}
-      Email: ${application.email}
-      Phone: ${application.phoneNumber}
-      Gender: ${application.gender}
-      Address: ${application.address}
-      City: ${application.city}
-      Zip Code: ${application.zipCode}
+      <p>Name: ${application.firstName} ${application.lastName}</p>
+      <p>Email: ${application.email}</p>
+      <p>Phone: ${application.phoneNumber}</p>
+      <p>Gender: ${application.gender}</p>
+      <p>Address: ${application.address}</p>
+      <p>City: ${application.city}</p>
+      <p>Zip Code: ${application.zipCode}</p>
     `;
     if (!application.isParent) {
       emailContent += `
-        Role: Student
-        Date of Birth: ${application.dob}
-        Selected Program: ${application.selectedProgram}
+        <p>Role: Student</p>
+        <p>Date of Birth: ${application.dob}</p>
+        <p>Selected Program: ${application.selectedProgram}</p>
       `;
     } else {
       emailContent += `
-        Role: Parent
-        Children:
+        <p></p>Role: Parent
+        <p></p>Children:
       `;
       application.children.forEach((child, index) => {
         emailContent += `
-          Child ${index + 1}:
-          Name: ${child.firstName} ${child.lastName}
-          Gender: ${child.gender}
-          Date of Birth: ${child.dob}
-          Selected Program: ${child.selectedProgram}
+          <p>Child ${index + 1}:</p>
+          <p>Name: ${child.firstName} ${child.lastName}</p>
+          <p>Gender: ${child.gender}</p>
+          <p>Date of Birth: ${child.dob}</p>
+          <p>Selected Program: ${child.selectedProgram}</p>
         `;
       });
     }
@@ -159,7 +159,7 @@ app.post('/api/users-application', async (req, res) => {
       text: emailContent,
       html: `
               <h1>New Application</h1>
-              <p>${emailContent}</p>
+              ${emailContent}
             `
     };
     await sgMail.send(msg)
