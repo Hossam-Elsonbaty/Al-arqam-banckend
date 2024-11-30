@@ -46,11 +46,10 @@ app.post('/api/contact-us', async (req, res) => {
     return res.status(400).json({ message: 'Please fill in all fields.' });
   }
   const newContactUs = new contactUsModel(data);
+  // from: process.env.EMAIL_USER,
   try {
-    await newContactUs.save();
-    console.log("data saved in db");
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: 'armaggg3@gmail.com@gmail.com',
       to: 'mostafasonbaty0@gmail.com',
       subject: 'Contact Us',
       text: `Name: ${data.name}\nEmail: ${data.email}\nMessage: ${data.message}`
@@ -68,6 +67,8 @@ app.post('/api/contact-us', async (req, res) => {
     console.error('Error saving contact us data:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
+    // await newContactUs.save();
+    console.log("data saved in db");
 });
 app.post('/api/users-application', async (req, res) => {
   const application = req.body;
