@@ -4,7 +4,7 @@ import { connectDB } from './config/db.js';
 import cors from 'cors';
 import nodemailer from 'nodemailer';
 import models from './models/user.model.js';
-
+import sgMail from '@sendgrid/mail';
 const { userApplication, contactUsModel } = models;
 const app = express();
 dotenv.config();
@@ -46,29 +46,42 @@ app.post('/api/contact-us', async (req, res) => {
     return res.status(400).json({ message: 'Please fill in all fields.' });
   }
   const newContactUs = new contactUsModel(data);
-  // from: process.env.EMAIL_USER,
+  console.log("data saved in db");
   try {
-    const mailOptions = {
-      from: 'armaggg3@gmail.com',
-      to: 'mostafasonbaty0@gmail.com',
+    await newContactUs.save();
+    // SendGrid email options
+    const msg = {
+      to: 'mostafasonbaty0@gmail.com', // Receiver's email
+      from: 'example@yourdomain.com', // Use a verified sender
       subject: 'Contact Us',
-      text: `Name: ${data.name}\nEmail: ${data.email}\nMessage: ${data.message}`
+      text: `Name: ${data.name}\nEmail: ${data.email}\nMessage: ${data.message}`,
     };
-    transporter.sendMail(mailOptions, (error, info) => {
-      console.log("opened transporter.sendMail")
-      if (error) {
-        console.error('Error sending email:', error);
-      } else {
-        console.log('Email sent:', info.response);
-      }
-    });
+    await sgMail.send(msg); // Send the email
     res.status(201).json({ success: true, data: newContactUs });
   } catch (error) {
-    console.error('Error saving contact us data:', error);
+    console.error('Error saving contact or sending email:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
-    // await newContactUs.save();
-    console.log("data saved in db");
+  // try {
+  //   const mailOptions = {
+  //     from: 'armaggg3@gmail.com',
+  //     to: 'mostafasonbaty0@gmail.com',
+  //     subject: 'Contact Us',
+  //     text: `Name: ${data.name}\nEmail: ${data.email}\nMessage: ${data.message}`
+  //   };
+  //   transporter.sendMail(mailOptions, (error, info) => {
+  //     console.log("opened transporter.sendMail")
+  //     if (error) {
+  //       console.error('Error sending email:', error);
+  //     } else {
+  //       console.log('Email sent:', info.response);
+  //     }
+  //   });
+  //   res.status(201).json({ success: true, data: newContactUs });
+  // } catch (error) {
+  //   console.error('Error saving contact us data:', error);
+  //   res.status(500).json({ message: 'Server error, please try again later.' });
+  // }
 });
 app.post('/api/users-application', async (req, res) => {
   const application = req.body;
