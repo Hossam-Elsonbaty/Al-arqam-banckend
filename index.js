@@ -52,7 +52,12 @@ app.post('/api/contact-us', async (req, res) => {
       from: 'armaggg3@gmail.com', // Use a verified sender
       subject: 'Contact Us',
       text: `Name: ${data.name}\nEmail: ${data.email}\nMessage: ${data.message}`,
-      html: '<h1>Contact Us</h1>',
+      html: `
+              <h1>Contact Us</h1>
+              <p>Name: ${data.name}</p>
+              <p>Email: ${data.email}</p>
+              <p>Message: ${data.message}</p>
+            `
     };
     sgMail.send(msg)
     .then((res)=>{console.log(res);})
