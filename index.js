@@ -59,7 +59,7 @@ app.post('/api/contact-us', async (req, res) => {
               <p>Message: ${data.message}</p>
             `
     };
-    sgMail.send(msg)
+    await sgMail.send(msg)
     .then((res)=>{console.log(res);})
     .catch((err)=>{console.log(err.message);})
     // Send the email
