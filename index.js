@@ -14,7 +14,6 @@ app.use(express.json());
 app.use(cors({
   origin: '*', // Allows all origins during testing. Replace '*' with your frontend URL in production.
 }));
-
 const PORT = process.env.PORT || 5555;
 
 // Nodemailer transporter
@@ -46,17 +45,19 @@ app.post('/api/contact-us', async (req, res) => {
     return res.status(400).json({ message: 'Please fill in all fields.' });
   }
   const newContactUs = new contactUsModel(data);
-  console.log("data saved in db");
   try {
     await newContactUs.save();
-    // SendGrid email options
     const msg = {
-      to: 'mostafasonbaty0@gmail.com', // Receiver's email
+      to: 'alarqamacademy101@gmail.com', // Receiver's email
       from: 'armaggg3@gmail.com', // Use a verified sender
       subject: 'Contact Us',
       text: `Name: ${data.name}\nEmail: ${data.email}\nMessage: ${data.message}`,
+      html: '<h1>Contact Us</h1>',
     };
-    await sgMail.send(msg); // Send the email
+    sgMail.send(msg)
+    .then((res)=>{console.log(res);})
+    .catch((err)=>{console.log(err.message);})
+    // Send the email
     res.status(201).json({ success: true, data: newContactUs });
   } catch (error) {
     console.error('Error saving contact or sending email:', error);
@@ -82,7 +83,7 @@ app.post('/api/contact-us', async (req, res) => {
   //   console.error('Error saving contact us data:', error);
   //   res.status(500).json({ message: 'Server error, please try again later.' });
   // }
-});
+})
 app.post('/api/users-application', async (req, res) => {
   const application = req.body;
   if (
@@ -183,3 +184,14 @@ const startServer = async () => {
 
 // Start the server
 startServer();
+// const message = {
+//   to: 'alarqamacademy101@gmail.com', // Receiver's email
+//   from: 'armaggg3@gmail.com', // Use a verified sender
+//   subject: 'Contact Us',
+//   text: 'hello from email',
+//   html: '<h1>hello from email</h1>',
+// };
+// sgMail.send(message)
+// .then((res)=>{console.log("done");})
+// .catch((err)=>{console.log(err.message);})
+
