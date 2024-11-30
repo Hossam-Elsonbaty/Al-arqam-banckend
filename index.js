@@ -152,19 +152,32 @@ app.post('/api/users-application', async (req, res) => {
         `;
       });
     }
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: 'mostafasonbaty0@gmail.com',
-      subject: 'New Application Submitted',
+    const msg = {
+      to: 'alarqamacademy101@gmail.com', // Receiver's email
+      from: 'armaggg3@gmail.com', // Use a verified sender
+      subject: 'Contact Us',
       text: emailContent,
+      html: `
+              <h1>New Application</h1>
+              <p>${emailContent}</p>
+            `
     };
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('Error sending email:', error);
-      } else {
-        console.log('Email sent:', info.response);
-      }
-    });
+    await sgMail.send(msg)
+    .then((res)=>{console.log(res);})
+    .catch((err)=>{console.log(err.message);})
+    // const mailOptions = {
+    //   from: process.env.EMAIL_USER,
+    //   to: 'mostafasonbaty0@gmail.com',
+    //   subject: 'New Application Submitted',
+    //   text: emailContent,
+    // };
+    // transporter.sendMail(mailOptions, (error, info) => {
+    //   if (error) {
+    //     console.error('Error sending email:', error);
+    //   } else {
+    //     console.log('Email sent:', info.response);
+    //   }
+    // });
     res.status(201).json({ success: true, data: newApplication });
   } catch (error) {
     console.error("Error in create application:", error.message);
