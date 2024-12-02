@@ -37,6 +37,17 @@ app.get('/api/contact-us', async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
+app.get('/api/users-application', async (req, res) => {
+  console.log('Incoming request to /api/contact-us');
+  try {
+    const userApplications = await userApplication.find();
+    console.log('Fetched contacts:', userApplications);
+    res.status(200).json(userApplications);
+  } catch (error) {
+    console.error('Error fetching data from database:', error);
+    res.status(500).json({ message: 'Server error, please try again later.' });
+  }
+});
 
 app.post('/api/contact-us', async (req, res) => {
   const data = req.body;
