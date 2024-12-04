@@ -27,8 +27,14 @@ const contactUsSchema = new mongoose.Schema({
   email: String,
   message: String,
 });
+const usersSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  message: String,
+});
 const models = {
   userApplication : mongoose.model('userApplication',userApplicationSchema),
-  contactUsModel : mongoose.model('contactUsModel',contactUsSchema)
+  contactUsModel : mongoose.model('contactUsModel',contactUsSchema),
+  usersModel : mongoose.model('usersModel',usersSchema)
 }
 export default models

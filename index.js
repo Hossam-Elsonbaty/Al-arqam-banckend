@@ -5,7 +5,7 @@ import cors from 'cors';
 import nodemailer from 'nodemailer';
 import models from './models/user.model.js';
 import sgMail from '@sendgrid/mail';
-const { userApplication, contactUsModel } = models;
+const { userApplication, contactUsModel, usersModel } = models;
 const app = express();
 dotenv.config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
@@ -26,6 +26,17 @@ const transporter = nodemailer.createTransport({
 });
 
 // Routes
+app.get('/api/users', async (req, res) => {
+  console.log('Incoming request to /api/users');
+  try {
+    const users = await usersModel.find();
+    console.log('Fetched contacts:', contacts);
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Error fetching data from database:', error);
+    res.status(500).json({ message: 'Server error, please try again later.' });
+  }
+});
 app.get('/api/contact-us', async (req, res) => {
   console.log('Incoming request to /api/contact-us');
   try {
@@ -49,6 +60,36 @@ app.get('/api/users-application', async (req, res) => {
   }
 });
 
+app.post('/api/users', async (req, res) => {
+  const data = req.body;
+  console.log(data);
+  if (!data.username || !data.password ) {
+    return res.status(400).json({ message: 'Please fill in all fields.' });
+  }
+  const newUser = new usersModel(data);
+  try {
+    await newUser.save();
+    const msg = {
+      to: 'alarqamacademy101@gmail.com', // Receiver's email
+      from: 'armaggg3@gmail.com', // Use a verified sender
+      subject: 'New user added',
+      text: `Name: ${data.username}\nEmail: ${data.password}`,
+      html: `
+              <h1>Contact Us</h1>
+              <p>Name: ${data.username}</p>
+              <p>Email: ${data.password}</p>
+            `
+    };
+    await sgMail.send(msg)
+    .then((res)=>{console.log(res);})
+    .catch((err)=>{console.log(err.message);})
+    // Send the email
+    res.status(201).json({ success: true, data: newContactUs });
+  } catch (error) {
+    console.error('Error saving contact or sending email:', error);
+    res.status(500).json({ message: 'Server error, please try again later.' });
+  }
+})
 app.post('/api/contact-us', async (req, res) => {
   const data = req.body;
   console.log(data);
