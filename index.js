@@ -11,9 +11,15 @@ dotenv.config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 // Middleware
 app.use(express.json());
+// app.use(cors({
+//   origin: '*', // Allows all origins during testing. Replace '*' with your frontend URL in production.
+// }));
 app.use(cors({
-  origin: '*', // Allows all origins during testing. Replace '*' with your frontend URL in production.
+  origin: ['http://localhost:3000', 'https://al-arqam-academy.vercel.app'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: '*',
 }));
+
 const PORT = process.env.PORT || 5555;
 
 // Nodemailer transporter
