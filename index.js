@@ -253,10 +253,9 @@ app.delete('/api/users/:id', async (req, res) => {
     console.log("after delete",userId);
     if (!deletedUser) {
       console.log("user not found log");
-      
       return res.status(404).json({ message: 'User not found' });
     }
-    console.log("finish if");
+    return res.status(200);
   } catch (error) {
     console.error('Error deleting user:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
