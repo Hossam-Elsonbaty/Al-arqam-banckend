@@ -243,7 +243,7 @@ app.post('/api/users-application', async (req, res) => {
   }
 });
 
-app.delete('/api/users/:id', async (req, res) => {
+app.get('/api/users/:id', async (req, res) => {
   const userId = req.params.id;
   console.log("before try",userId);
   try {
