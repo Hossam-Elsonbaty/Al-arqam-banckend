@@ -75,15 +75,16 @@ app.post('/api/users', async (req, res) => {
       subject: 'New user added',
       text: `Name: ${data.username}\nEmail: ${data.password}`,
       html: `
-              <h1>Contact Us</h1>
+              <h1>Add New User</h1>
               <p>Name: ${data.username}</p>
               <p>Email: ${data.password}</p>
             `
     };
+    console.log("email se");
     await sgMail.send(msg)
     .then((res)=>{console.log(res);})
-    .catch((err)=>{console.log(err.message);})
-    res.status(201).json({ success: true, data: newContactUs });
+    .catch((err)=>{console.log("error:",err.message);})
+    res.status(201).json({ success: true, data: newUser });
   } catch (error) {
     console.error('Error saving contact or sending email:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
