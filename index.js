@@ -243,20 +243,32 @@ app.post('/api/users-application', async (req, res) => {
   }
 });
 
-app.get('/api/users/:id', async (req, res) => {
+app.delete('/api/users/:id', async (req, res) => {
   const userId = req.params.id;
   console.log("before try",userId);
+  if (!userId) {
+    console.log("user not found log");
+    return res.status(404).json({ message: 'User not found' });
+  }
   try {
     // Find and delete the user by ID
     console.log("before delete",userId);
-    const deletedUser = await usersModel.findByIdAndDelete(userId);
+    await usersModel.findByIdAndDelete(userId);
     console.log("after delete",userId);
-    if (!deletedUser) {
-      console.log("user not found log");
-      return res.status(404).json({ message: 'User not found' });
-    }
     return res.status(200);
-  } catch (error) {
+  } 
+  // try {
+  //   // Find and delete the user by ID
+  //   console.log("before delete",userId);
+  //   const deletedUser = await usersModel.findByIdAndDelete(userId);
+  //   if (!deletedUser) {
+  //     console.log("user not found log");
+  //     return res.status(404).json({ message: 'User not found' });
+  //   }
+  //   console.log("after delete",userId);
+  //   return res.status(200);
+  // } 
+  catch (error) {
     console.error('Error deleting user:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
