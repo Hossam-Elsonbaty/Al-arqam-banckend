@@ -30,7 +30,7 @@ app.get('/api/users', async (req, res) => {
   console.log('Incoming request to /api/users');
   try {
     const users = await usersModel.find();
-    console.log('Fetched contacts:', contacts);
+    console.log('Fetched contacts:', users);
     res.status(200).json(users);
   } catch (error) {
     console.error('Error fetching data from database:', error);
@@ -83,7 +83,6 @@ app.post('/api/users', async (req, res) => {
     await sgMail.send(msg)
     .then((res)=>{console.log(res);})
     .catch((err)=>{console.log(err.message);})
-    // Send the email
     res.status(201).json({ success: true, data: newContactUs });
   } catch (error) {
     console.error('Error saving contact or sending email:', error);

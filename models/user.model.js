@@ -28,9 +28,8 @@ const contactUsSchema = new mongoose.Schema({
   message: String,
 });
 const usersSchema = new mongoose.Schema({
-  name: String,
-  email: String,
-  message: String,
+  username: String,
+  password: String,
 });
 const models = {
   userApplication : mongoose.model('userApplication',userApplicationSchema),
