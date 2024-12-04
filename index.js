@@ -236,6 +236,21 @@ app.post('/api/users-application', async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 });
+
+app.delete('/api/users/:id', async (req, res) => {
+  const userId = req.params.id;
+  try {
+    // Find and delete the user by ID
+    const deletedUser = await usersModel.findByIdAndDelete(userId);
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Server error, please try again later.' });
+  }
+});
+
 // Additional POST route logic...
 
 // Start the server only after the DB is connected
