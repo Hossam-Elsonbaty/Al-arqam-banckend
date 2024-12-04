@@ -239,12 +239,12 @@ app.post('/api/users-application', async (req, res) => {
 
 app.delete('/api/users/:id', async (req, res) => {
   const userId = req.params.id;
-  console.log(userId);
+  console.log("before try",userId);
   try {
     // Find and delete the user by ID
-    console.log(userId);
+    console.log("before delete",userId);
     const deletedUser = await usersModel.findByIdAndDelete(userId);
-    console.log(userId);
+    console.log("after delete",userId);
     if (!deletedUser) {
       return res.status(404).json({ message: 'User not found' });
     }
