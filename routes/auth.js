@@ -10,13 +10,14 @@ const { userApplication, contactUsModel, usersModel } = models;
 // const User = require('../models/userModel'); // Replace with your user model
 const router = express.Router();
 
-const JWT_SECRET = 'your-secret-key'; // Replace with your own secret key
-const TOKEN_EXPIRY = '1h'; // Adjust as needed
+const JWT_SECRET = 'c6b3685154bf81ec26319af30b6d6a3a05eccd59709b325ae16c0f4305a0f0390eba43e816b3f70f74b70a6b1a7abde30f88ea56e5a835ff20675f2f563744e9'; // Replace with your own secret key
+const TOKEN_EXPIRY = '168h'; // Adjust as needed
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Login route
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
+  console.log({ username, password });
   try {
     const user = await usersModel.findOne({ username });
     if (!user) {
