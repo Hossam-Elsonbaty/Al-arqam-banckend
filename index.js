@@ -43,6 +43,19 @@ app.get('/api/users', async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
+app.delete('/api/users/:id', async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const deletedUser = await usersModel.findByIdAndDelete(userId);
+    if (!deletedUser) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Server error, please try again later.' });
+  }
+});
 app.get('/api/contact-us', async (req, res) => {
   console.log('Incoming request to /api/contact-us');
   try {
@@ -243,36 +256,6 @@ app.post('/api/users-application', async (req, res) => {
   }
 });
 
-app.delete('/api/users/:id', async (req, res) => {
-  const userId = req.params.id;
-  console.log("before try",userId);
-  try {
-    // Find and delete the user by ID
-    console.log("before delete",userId);
-    await usersModel.findByIdAndDelete(userId);
-    if (!userId) {
-      console.log("user not found log");
-      return res.status(404).json({ message: 'User not found' });
-    }
-    console.log("after delete",userId);
-    return res.status(200);
-  } 
-  // try {
-  //   // Find and delete the user by ID
-  //   console.log("before delete",userId);
-  //   const deletedUser = await usersModel.findByIdAndDelete(userId);
-  //   if (!deletedUser) {
-  //     console.log("user not found log");
-  //     return res.status(404).json({ message: 'User not found' });
-  //   }
-  //   console.log("after delete",userId);
-  //   return res.status(200);
-  // } 
-  catch (error) {
-    console.error('Error deleting user:', error);
-    res.status(500).json({ message: 'Server error, please try again later.' });
-  }
-});
 
 // Additional POST route logic...
 
