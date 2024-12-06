@@ -99,77 +99,75 @@ router.get('/users-application', async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
-import bcrypt from 'bcrypt'; // Ensure bcrypt is installed: npm install bcrypt
-
-// router.post('/users', async (req, res) => {
-//   const { username, password } = req.body;
-//   if (!username || !password) {
-//     return res.status(400).json({ message: 'Please fill in all fields.' });
-//   }
-//   try {
-//     // Hash the password
-//     const saltRounds = 10; // The higher the number, the stronger the hash but slower the process
-//     const hashedPassword = await bcrypt.hash(password, saltRounds);
-//     // Create a new user object with the hashed password
-//     const newUser = new usersModel({
-//       username,
-//       password: hashedPassword, // Store the hashed password in the database
-//     });
-//     await newUser.save();
-//     const msg = {
-//       to: 'alarqamacademy101@gmail.com', // Receiver's email
-//       from: 'armaggg3@gmail.com', // Use a verified sender
-//       subject: 'New user added',
-//       text: `Name: ${username}\nPassword: (hashed)`,
-//       html: `
-//               <h1>Add New User</h1>
-//               <p>Name: ${username}</p>
-//               <p>Password: (hashed)</p>
-//             `,
-//     };
-//     console.log("email sending");
-//     await sgMail.send(msg).then((res) => {
-//       console.log(res);
-//     }).catch((err) => {
-//       console.log("error:", err.message);
-//     });
-//     res.status(201).json({ success: true, data: newUser });
-//   } catch (error) {
-//     console.error('Error saving user or sending email:', error);
-//     res.status(500).json({ message: 'Server error, please try again later.' });
-//   }
-// });
-
 router.post('/users', async (req, res) => {
-  const data = req.body;
-  console.log(data);
-  if (!data.username || !data.password ) {
+  const { username, password } = req.body;
+  if (!username || !password) {
     return res.status(400).json({ message: 'Please fill in all fields.' });
   }
-  const newUser = new usersModel(data);
   try {
+    // Hash the password
+    const saltRounds = 10; // The higher the number, the stronger the hash but slower the process
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    // Create a new user object with the hashed password
+    const newUser = new usersModel({
+      username,
+      password: hashedPassword, // Store the hashed password in the database
+    });
     await newUser.save();
     const msg = {
       to: 'alarqamacademy101@gmail.com', // Receiver's email
       from: 'armaggg3@gmail.com', // Use a verified sender
       subject: 'New user added',
-      text: `Name: ${data.username}\nEmail: ${data.password}`,
+      text: `Name: ${username}\nPassword: (hashed)`,
       html: `
               <h1>Add New User</h1>
-              <p>Name: ${data.username}</p>
-              <p>Email: ${data.password}</p>
-            `
+              <p>Name: ${username}</p>
+              <p>Password: (hashed)</p>
+            `,
     };
-    console.log("email se");
-    await sgMail.send(msg)
-    .then((res)=>{console.log(res);})
-    .catch((err)=>{console.log("error:",err.message);})
+    console.log("email sending");
+    await sgMail.send(msg).then((res) => {
+      console.log(res);
+    }).catch((err) => {
+      console.log("error:", err.message);
+    });
     res.status(201).json({ success: true, data: newUser });
   } catch (error) {
-    console.error('Error saving contact or sending email:', error);
+    console.error('Error saving user or sending email:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
-})
+});
+
+// router.post('/users', async (req, res) => {
+//   const data = req.body;
+//   console.log(data);
+//   if (!data.username || !data.password ) {
+//     return res.status(400).json({ message: 'Please fill in all fields.' });
+//   }
+//   const newUser = new usersModel(data);
+//   try {
+//     await newUser.save();
+//     const msg = {
+//       to: 'alarqamacademy101@gmail.com', // Receiver's email
+//       from: 'armaggg3@gmail.com', // Use a verified sender
+//       subject: 'New user added',
+//       text: `Name: ${data.username}\nEmail: ${data.password}`,
+//       html: `
+//               <h1>Add New User</h1>
+//               <p>Name: ${data.username}</p>
+//               <p>Email: ${data.password}</p>
+//             `
+//     };
+//     console.log("email se");
+//     await sgMail.send(msg)
+//     .then((res)=>{console.log(res);})
+//     .catch((err)=>{console.log("error:",err.message);})
+//     res.status(201).json({ success: true, data: newUser });
+//   } catch (error) {
+//     console.error('Error saving contact or sending email:', error);
+//     res.status(500).json({ message: 'Server error, please try again later.' });
+//   }
+// })
 router.post('/contact-us', async (req, res) => {
   const data = req.body;
   console.log(data);
