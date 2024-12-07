@@ -43,14 +43,14 @@ router.get('/users', verifyToken, async (req, res) => {
   console.log('Incoming request to /users');
   try {
     const users = await usersModel.find();
-    console.log('Fetched contacts:', users);
+    console.log('Fetched users:', users);
     res.status(200).json(users);
   } catch (error) {
     console.error('Error fetching data from database:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
-router.delete('/users/:id', async (req, res) => {
+router.delete('/users/:id', verifyToken, async (req, res) => {
   const userId = req.params.id;
   try {
     const deletedUser = await usersModel.findByIdAndDelete(userId);
