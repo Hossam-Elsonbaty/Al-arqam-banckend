@@ -4,7 +4,7 @@ import models from '../models/user.model.js';
 import sgMail from '@sendgrid/mail';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-
+import verifyToken from './middleware.js';
 const { userApplication, contactUsModel, usersModel } = models;
 // const express = require('express');
 // const User = require('../models/userModel'); // Replace with your user model
@@ -13,9 +13,21 @@ const router = express.Router();
 const JWT_SECRET = 'c6b3685154bf81ec26319af30b6d6a3a05eccd59709b325ae16c0f4305a0f0390eba43e816b3f70f74b70a6b1a7abde30f88ea56e5a835ff20675f2f563744e9'; // Replace with your own secret key
 const TOKEN_EXPIRY = '168h'; // Adjust as needed
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// Middleware to verify token
+// const verifyToken = (req, res, next) => {
+//   const token = req.header('Authorization')?.split(' ')[1];
+//   if (!token) return res.status(401).json({ message: 'Access Denied' });
+//   try {
+//     const verified = jwt.verify(token, JWT_SECRET);
+//     req.user = verified;
+//     next();
+//   } catch (error) {
+//     res.status(400).json({ message: 'Invalid Token' });
+//   }
+// };
 
 // Login route
-router.post('/login', async (req, res) => {
+router.post('/login', verifyToken, async (req, res) => {
   const { username, password } = req.body;
   console.log(username, password);
   try {
@@ -40,20 +52,8 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Middleware to verify token
-const verifyToken = (req, res, next) => {
-  const token = req.header('Authorization')?.split(' ')[1];
-  if (!token) return res.status(401).json({ message: 'Access Denied' });
-  try {
-    const verified = jwt.verify(token, JWT_SECRET);
-    req.user = verified;
-    next();
-  } catch (error) {
-    res.status(400).json({ message: 'Invalid Token' });
-  }
-};
 // Routes
-router.get('/users', async (req, res) => {
+router.get('/users', verifyToken, async (req, res) => {
   console.log('Incoming request to /users');
   try {
     const users = await usersModel.find();
@@ -77,7 +77,7 @@ router.delete('/users/:id', async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
-router.get('/contact-us', async (req, res) => {
+router.get('/contact-us', verifyToken, async (req, res) => {
   console.log('Incoming request to /contact-us');
   try {
     const contacts = await contactUsModel.find();
@@ -88,7 +88,7 @@ router.get('/contact-us', async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
-router.get('/users-application', async (req, res) => {
+router.get('/users-application', verifyToken, async (req, res) => {
   console.log('Incoming request to /contact-us');
   try {
     const userApplications = await userApplication.find();
@@ -99,7 +99,7 @@ router.get('/users-application', async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
-router.post('/users', async (req, res) => {
+router.post('/users', verifyToken, async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ message: 'Please fill in all fields.' });
@@ -168,7 +168,7 @@ router.post('/users', async (req, res) => {
 //     res.status(500).json({ message: 'Server error, please try again later.' });
 //   }
 // })
-router.post('/contact-us', async (req, res) => {
+router.post('/contact-us', verifyToken, async (req, res) => {
   const data = req.body;
   console.log(data);
   if (!data.name || !data.email || !data.message) {
@@ -199,7 +199,7 @@ router.post('/contact-us', async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 })
-router.post('/users-application', async (req, res) => {
+router.post('/users-application', verifyToken, async (req, res) => {
   const application = req.body;
   if (
     !application.firstName || 
@@ -283,8 +283,8 @@ router.post('/users-application', async (req, res) => {
 });
 
 // Example of a protected route
-router.get('/dashboard', verifyToken, (req, res) => {
-  res.json({ message: 'Welcome to the dashboard!' });
-});
+// router.get('/dashboard', verifyToken, (req, res) => {
+//   res.json({ message: 'Welcome to the dashboard!' });
+// });
 export default router
 // module.exports = router;
