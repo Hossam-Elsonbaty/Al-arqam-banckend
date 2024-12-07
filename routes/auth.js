@@ -8,7 +8,7 @@ import verifyToken from './middleware.js';
 const { userApplication, contactUsModel, usersModel } = models;
 const router = express.Router();
 
-const JWT_SECRET = 'c6b3685154bf81ec26319af30b6d6a3a05eccd59709b325ae16c0f4305a0f0390eba43e816b3f70f74b70a6b1a7abde30f88ea56e5a835ff20675f2f563744e9'; // Replace with your own secret key
+const JWT_SECRET = (process.env.JWT_SECRET)
 const TOKEN_EXPIRY = '168h'; // Adjust as needed
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
