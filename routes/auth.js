@@ -6,28 +6,14 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import verifyToken from './middleware.js';
 const { userApplication, contactUsModel, usersModel } = models;
-// const express = require('express');
-// const User = require('../models/userModel'); // Replace with your user model
 const router = express.Router();
 
 const JWT_SECRET = 'c6b3685154bf81ec26319af30b6d6a3a05eccd59709b325ae16c0f4305a0f0390eba43e816b3f70f74b70a6b1a7abde30f88ea56e5a835ff20675f2f563744e9'; // Replace with your own secret key
 const TOKEN_EXPIRY = '168h'; // Adjust as needed
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-// Middleware to verify token
-// const verifyToken = (req, res, next) => {
-//   const token = req.header('Authorization')?.split(' ')[1];
-//   if (!token) return res.status(401).json({ message: 'Access Denied' });
-//   try {
-//     const verified = jwt.verify(token, JWT_SECRET);
-//     req.user = verified;
-//     next();
-//   } catch (error) {
-//     res.status(400).json({ message: 'Invalid Token' });
-//   }
-// };
 
 // Login route
-router.post('/login', verifyToken, async (req, res) => {
+router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   console.log(username, password);
   try {
@@ -138,36 +124,6 @@ router.post('/users', verifyToken, async (req, res) => {
   }
 });
 
-// router.post('/users', async (req, res) => {
-//   const data = req.body;
-//   console.log(data);
-//   if (!data.username || !data.password ) {
-//     return res.status(400).json({ message: 'Please fill in all fields.' });
-//   }
-//   const newUser = new usersModel(data);
-//   try {
-//     await newUser.save();
-//     const msg = {
-//       to: 'alarqamacademy101@gmail.com', // Receiver's email
-//       from: 'armaggg3@gmail.com', // Use a verified sender
-//       subject: 'New user added',
-//       text: `Name: ${data.username}\nEmail: ${data.password}`,
-//       html: `
-//               <h1>Add New User</h1>
-//               <p>Name: ${data.username}</p>
-//               <p>Email: ${data.password}</p>
-//             `
-//     };
-//     console.log("email se");
-//     await sgMail.send(msg)
-//     .then((res)=>{console.log(res);})
-//     .catch((err)=>{console.log("error:",err.message);})
-//     res.status(201).json({ success: true, data: newUser });
-//   } catch (error) {
-//     console.error('Error saving contact or sending email:', error);
-//     res.status(500).json({ message: 'Server error, please try again later.' });
-//   }
-// })
 router.post('/contact-us', verifyToken, async (req, res) => {
   const data = req.body;
   console.log(data);
@@ -282,9 +238,5 @@ router.post('/users-application', verifyToken, async (req, res) => {
   }
 });
 
-// Example of a protected route
-// router.get('/dashboard', verifyToken, (req, res) => {
-//   res.json({ message: 'Welcome to the dashboard!' });
-// });
 export default router
 // module.exports = router;
