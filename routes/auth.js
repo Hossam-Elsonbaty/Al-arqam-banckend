@@ -124,7 +124,7 @@ router.post('/users', verifyToken, async (req, res) => {
   }
 });
 
-router.post('/contact-us', verifyToken, async (req, res) => {
+router.post('/contact-us', async (req, res) => {
   const data = req.body;
   console.log(data);
   if (!data.name || !data.email || !data.message) {
@@ -155,7 +155,7 @@ router.post('/contact-us', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 })
-router.post('/users-application', verifyToken, async (req, res) => {
+router.post('/users-application', async (req, res) => {
   const application = req.body;
   if (
     !application.firstName || 
