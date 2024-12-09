@@ -1,17 +1,13 @@
 import mongoose from 'mongoose';
 
-const userApplicationSchema = new mongoose.Schema({
+const parentApplicationSchema = new mongoose.Schema({
   firstName: String,
   lastName: String,
   email: String,
   phoneNumber: String,
-  gender: { type: String, required: function() { return !this.isParent; } },
-  dob: { type: String, required: function() { return !this.isParent; } },
   address: String,
   city: String,
   zipCode: Number,
-  selectedProgram: { type: String, required: function() { return !this.isParent; } },
-  isParent: Boolean,
   children: [
     {
       firstName: String,
@@ -21,6 +17,18 @@ const userApplicationSchema = new mongoose.Schema({
       selectedProgram: String,
     },
   ],
+});
+const studentApplicationSchema = new mongoose.Schema({
+  firstName: String,
+  lastName: String,
+  email: String,
+  phoneNumber: String,
+  gender: String, 
+  dob: String,
+  address: String,
+  city: String,
+  zipCode: Number,
+  selectedProgram: String,
 });
 const contactUsSchema = new mongoose.Schema({
   name: String,
@@ -32,7 +40,8 @@ const usersSchema = new mongoose.Schema({
   password: String,
 });
 const models = {
-  userApplication : mongoose.model('userApplication',userApplicationSchema),
+  parentApplication: mongoose.model('parentApplicationSchema',parentApplicationSchema),
+  studentApplication : mongoose.model('studentApplication',studentApplicationSchema),
   contactUsModel : mongoose.model('contactUsModel',contactUsSchema),
   usersModel : mongoose.model('usersModel',usersSchema)
 }

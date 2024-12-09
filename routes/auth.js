@@ -5,7 +5,7 @@ import sgMail from '@sendgrid/mail';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import verifyToken from './middleware.js';
-const { userApplication, contactUsModel, usersModel } = models;
+const { parentApplication, studentApplication, contactUsModel, usersModel } = models;
 const router = express.Router();
 
 const JWT_SECRET = (process.env.JWT_SECRET)
@@ -155,7 +155,7 @@ router.post('/contact-us', async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 })
-router.post('/users-application', async (req, res) => {
+router.post('/student-application', async (req, res) => {
   const application = req.body;
   if (
     !application.firstName || 
@@ -168,10 +168,153 @@ router.post('/users-application', async (req, res) => {
   ) {
     return res.status(400).json({ message: "Please fill in all required fields" });
   }
-  if (!application.isParent) {
-    if (!application.dob || !application.selectedProgram || !application.gender) {
-      return res.status(400).json({ message: "Students must provide Date of Birth and Selected Program" });
-    }
+  const newApplication = new studentApplication(application);
+  try {
+    await newApplication.save();
+    // let emailContent = `
+    //   A new application has been submitted:
+    //   <p>Name: ${application.firstName} ${application.lastName}</p>
+    //   <p>Email: ${application.email}</p>
+    //   <p>Phone: ${application.phoneNumber}</p>
+    //   <p>Gender: ${application.gender}</p>
+    //   <p>Address: ${application.address}</p>
+    //   <p>City: ${application.city}</p>
+    //   <p>Zip Code: ${application.zipCode}</p>
+    // `;
+    // if (!application.isParent) {
+    //   emailContent += `
+    //     <p>Role: Student</p>
+    //     <p>Date of Birth: ${application.dob}</p>
+    //     <p>Selected Program: ${application.selectedProgram}</p>
+    //   `;
+    // } else {
+    //   emailContent += `
+    //     <p></p>Role: Parent
+    //     <p></p>Children:
+    //   `;
+    //   application.children.forEach((child, index) => {
+    //     emailContent += `
+    //       <p>Child ${index + 1}:</p>
+    //       <p>Name: ${child.firstName} ${child.lastName}</p>
+    //       <p>Gender: ${child.gender}</p>
+    //       <p>Date of Birth: ${child.dob}</p>
+    //       <p>Selected Program: ${child.selectedProgram}</p>
+    //     `;
+    //   });
+    // }
+    // const msg = {
+    //   to: 'alarqamacademy101@gmail.com', // Receiver's email
+    //   from: 'armaggg3@gmail.com', // Use a verified sender
+    //   subject: 'Contact Us',
+    //   text: emailContent,
+    //   html: `
+    //           <h1>New Application</h1>
+    //           ${emailContent}
+    //         `
+    // };
+    // await sgMail.send(msg)
+    // .then((res)=>{console.log(res);})
+    // .catch((err)=>{console.log(err.message);})
+    res.status(201).json({ success: true, data: newApplication });
+  } catch (error) {
+    console.error("Error in create application:", error.message);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+});
+// router.post('/users-application', async (req, res) => {
+//   const application = req.body;
+//   if (
+//     !application.firstName || 
+//     !application.lastName || 
+//     !application.email || 
+//     !application.phoneNumber || 
+//     !application.address || 
+//     !application.city || 
+//     !application.zipCode
+//   ) {
+//     return res.status(400).json({ message: "Please fill in all required fields" });
+//   }
+//   if (!application.isParent) {
+//     if (!application.dob || !application.selectedProgram || !application.gender) {
+//       return res.status(400).json({ message: "Students must provide Date of Birth and Selected Program" });
+//     }
+//   }
+//   if (application.isParent) {
+//     if (!application.children || application.children.length < 1) {
+//       return res.status(400).json({ message: "Parents must register at least one child" });
+//     }
+//     const invalidChild = application.children.some(child =>
+//       !child.firstName || !child.lastName || !child.gender || !child.dob || !child.selectedProgram
+//     );
+//     if (invalidChild) {
+//       return res.status(400).json({ message: "Please fill in all fields for each child" });
+//     }
+//   }
+//   const newApplication = new userApplication(application);
+//   try {
+//     await newApplication.save();
+//     let emailContent = `
+//       A new application has been submitted:
+//       <p>Name: ${application.firstName} ${application.lastName}</p>
+//       <p>Email: ${application.email}</p>
+//       <p>Phone: ${application.phoneNumber}</p>
+//       <p>Gender: ${application.gender}</p>
+//       <p>Address: ${application.address}</p>
+//       <p>City: ${application.city}</p>
+//       <p>Zip Code: ${application.zipCode}</p>
+//     `;
+//     if (!application.isParent) {
+//       emailContent += `
+//         <p>Role: Student</p>
+//         <p>Date of Birth: ${application.dob}</p>
+//         <p>Selected Program: ${application.selectedProgram}</p>
+//       `;
+//     } else {
+//       emailContent += `
+//         <p></p>Role: Parent
+//         <p></p>Children:
+//       `;
+//       application.children.forEach((child, index) => {
+//         emailContent += `
+//           <p>Child ${index + 1}:</p>
+//           <p>Name: ${child.firstName} ${child.lastName}</p>
+//           <p>Gender: ${child.gender}</p>
+//           <p>Date of Birth: ${child.dob}</p>
+//           <p>Selected Program: ${child.selectedProgram}</p>
+//         `;
+//       });
+//     }
+//     const msg = {
+//       to: 'alarqamacademy101@gmail.com', // Receiver's email
+//       from: 'armaggg3@gmail.com', // Use a verified sender
+//       subject: 'Contact Us',
+//       text: emailContent,
+//       html: `
+//               <h1>New Application</h1>
+//               ${emailContent}
+//             `
+//     };
+//     await sgMail.send(msg)
+//     .then((res)=>{console.log(res);})
+//     .catch((err)=>{console.log(err.message);})
+//     res.status(201).json({ success: true, data: newApplication });
+//   } catch (error) {
+//     console.error("Error in create application:", error.message);
+//     res.status(500).json({ success: false, message: "Server Error" });
+//   }
+// });
+router.post('/parent-application', async (req, res) => {
+  const application = req.body;
+  if (
+    !application.firstName || 
+    !application.lastName || 
+    !application.email || 
+    !application.phoneNumber || 
+    !application.address || 
+    !application.city || 
+    !application.zipCode
+  ) {
+    return res.status(400).json({ message: "Please fill in all required fields" });
   }
   if (application.isParent) {
     if (!application.children || application.children.length < 1) {
@@ -184,53 +327,53 @@ router.post('/users-application', async (req, res) => {
       return res.status(400).json({ message: "Please fill in all fields for each child" });
     }
   }
-  const newApplication = new userApplication(application);
+  const newApplication = new parentApplication(application);
   try {
     await newApplication.save();
-    let emailContent = `
-      A new application has been submitted:
-      <p>Name: ${application.firstName} ${application.lastName}</p>
-      <p>Email: ${application.email}</p>
-      <p>Phone: ${application.phoneNumber}</p>
-      <p>Gender: ${application.gender}</p>
-      <p>Address: ${application.address}</p>
-      <p>City: ${application.city}</p>
-      <p>Zip Code: ${application.zipCode}</p>
-    `;
-    if (!application.isParent) {
-      emailContent += `
-        <p>Role: Student</p>
-        <p>Date of Birth: ${application.dob}</p>
-        <p>Selected Program: ${application.selectedProgram}</p>
-      `;
-    } else {
-      emailContent += `
-        <p></p>Role: Parent
-        <p></p>Children:
-      `;
-      application.children.forEach((child, index) => {
-        emailContent += `
-          <p>Child ${index + 1}:</p>
-          <p>Name: ${child.firstName} ${child.lastName}</p>
-          <p>Gender: ${child.gender}</p>
-          <p>Date of Birth: ${child.dob}</p>
-          <p>Selected Program: ${child.selectedProgram}</p>
-        `;
-      });
-    }
-    const msg = {
-      to: 'alarqamacademy101@gmail.com', // Receiver's email
-      from: 'armaggg3@gmail.com', // Use a verified sender
-      subject: 'Contact Us',
-      text: emailContent,
-      html: `
-              <h1>New Application</h1>
-              ${emailContent}
-            `
-    };
-    await sgMail.send(msg)
-    .then((res)=>{console.log(res);})
-    .catch((err)=>{console.log(err.message);})
+    // let emailContent = `
+    //   A new application has been submitted:
+    //   <p>Name: ${application.firstName} ${application.lastName}</p>
+    //   <p>Email: ${application.email}</p>
+    //   <p>Phone: ${application.phoneNumber}</p>
+    //   <p>Gender: ${application.gender}</p>
+    //   <p>Address: ${application.address}</p>
+    //   <p>City: ${application.city}</p>
+    //   <p>Zip Code: ${application.zipCode}</p>
+    // `;
+    // if (!application.isParent) {
+    //   emailContent += `
+    //     <p>Role: Student</p>
+    //     <p>Date of Birth: ${application.dob}</p>
+    //     <p>Selected Program: ${application.selectedProgram}</p>
+    //   `;
+    // } else {
+    //   emailContent += `
+    //     <p></p>Role: Parent
+    //     <p></p>Children:
+    //   `;
+    //   application.children.forEach((child, index) => {
+    //     emailContent += `
+    //       <p>Child ${index + 1}:</p>
+    //       <p>Name: ${child.firstName} ${child.lastName}</p>
+    //       <p>Gender: ${child.gender}</p>
+    //       <p>Date of Birth: ${child.dob}</p>
+    //       <p>Selected Program: ${child.selectedProgram}</p>
+    //     `;
+    //   });
+    // }
+    // const msg = {
+    //   to: 'alarqamacademy101@gmail.com', // Receiver's email
+    //   from: 'armaggg3@gmail.com', // Use a verified sender
+    //   subject: 'Contact Us',
+    //   text: emailContent,
+    //   html: `
+    //           <h1>New Application</h1>
+    //           ${emailContent}
+    //         `
+    // };
+    // await sgMail.send(msg)
+    // .then((res)=>{console.log(res);})
+    // .catch((err)=>{console.log(err.message);})
     res.status(201).json({ success: true, data: newApplication });
   } catch (error) {
     console.error("Error in create application:", error.message);
