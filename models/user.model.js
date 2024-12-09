@@ -40,7 +40,7 @@ const usersSchema = new mongoose.Schema({
   password: String,
 });
 const models = {
-  parentApplication: mongoose.model('parentApplicationSchema',parentApplicationSchema),
+  parentApplication: mongoose.model('parentApplication',parentApplicationSchema),
   studentApplication : mongoose.model('studentApplication',studentApplicationSchema),
   contactUsModel : mongoose.model('contactUsModel',contactUsSchema),
   usersModel : mongoose.model('usersModel',usersSchema)
