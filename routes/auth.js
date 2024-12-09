@@ -74,12 +74,34 @@ router.get('/contact-us', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
-router.get('/users-application', verifyToken, async (req, res) => {
+// router.get('/users-application', verifyToken, async (req, res) => {
+//   console.log('Incoming request to /contact-us');
+//   try {
+//     const userApplications = await userApplication.find();
+//     console.log('Fetched contacts:', userApplications);
+//     res.status(200).json(userApplications);
+//   } catch (error) {
+//     console.error('Error fetching data from database:', error);
+//     res.status(500).json({ message: 'Server error, please try again later.' });
+//   }
+// });
+router.get('/student-application', verifyToken, async (req, res) => {
   console.log('Incoming request to /contact-us');
   try {
-    const userApplications = await userApplication.find();
-    console.log('Fetched contacts:', userApplications);
-    res.status(200).json(userApplications);
+    const studentApplications = await studentApplication.find();
+    console.log('Fetched contacts:', studentApplications);
+    res.status(200).json(studentApplications);
+  } catch (error) {
+    console.error('Error fetching data from database:', error);
+    res.status(500).json({ message: 'Server error, please try again later.' });
+  }
+});
+router.get('/parent-application', verifyToken, async (req, res) => {
+  console.log('Incoming request to /contact-us');
+  try {
+    const parentApplications = await parentApplication.find();
+    console.log('Fetched contacts:', parentApplications);
+    res.status(200).json(parentApplications);
   } catch (error) {
     console.error('Error fetching data from database:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
