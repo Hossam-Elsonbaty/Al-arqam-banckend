@@ -86,7 +86,7 @@ router.get('/contact-us', verifyToken, async (req, res) => {
 //   }
 // });
 router.get('/student-application', verifyToken, async (req, res) => {
-  console.log('Incoming request to /contact-us');
+  console.log('Incoming request to /student-application');
   try {
     const studentApplications = await studentApplication.find();
     console.log('Fetched contacts:', studentApplications);
@@ -185,6 +185,7 @@ router.post('/student-application', async (req, res) => {
     !application.email || 
     !application.phoneNumber || 
     !application.address || 
+    !application.dob || 
     !application.city || 
     !application.zipCode
   ) {
