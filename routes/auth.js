@@ -189,6 +189,8 @@ router.post('/student-application', async (req, res) => {
     !application.address || 
     !application.dob || 
     !application.city || 
+    !application.gender || 
+    !application.selectedProgram || 
     !application.zipCode
   ) {
     return res.status(400).json({ message: "Please fill in all required fields" });
