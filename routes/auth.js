@@ -179,6 +179,8 @@ router.post('/contact-us', async (req, res) => {
 })
 router.post('/student-application', async (req, res) => {
   const application = req.body;
+  console.log(application);
+  
   if (
     !application.firstName || 
     !application.lastName || 
