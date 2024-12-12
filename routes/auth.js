@@ -180,7 +180,7 @@ router.post('/contact-us', async (req, res) => {
 router.post('/send-email', async (req, res) => {
   const data = req.body;
   console.log(data);
-  if (!data.emailAddress || !data.emailMessage || data.emailSubject) {
+  if (!data.emailAddress || !data.emailMessage || !data.emailSubject) {
     return res.status(400).json({ message: 'Please fill in all fields.' });
   }
   try {
