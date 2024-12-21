@@ -23,8 +23,8 @@ router.post('/login', async (req, res) => {
       console.log("Invalid username or password");
       return res.status(400).json({ message: 'Invalid username or password' });
     }
-    const saltRounds = 10; // The higher the number, the stronger the hash but slower the process
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    // const saltRounds = 10;
+    // const hashedPassword = await bcrypt.hash(password, saltRounds);
     const isMatch = await bcrypt.compare(hashedPassword, user.password);
     console.log(isMatch,password, user.password);
     if (!isMatch) {
