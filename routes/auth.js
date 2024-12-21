@@ -19,12 +19,13 @@ router.post('/login', async (req, res) => {
   try {
     const user = await usersModel.findOne({ username });
     console.log("user:",user);
-    
     if (!user) {
       console.log("Invalid username or password");
       return res.status(400).json({ message: 'Invalid username or password' });
     }
-    const isMatch = await bcrypt.compare(password, user.password);
+    const saltRounds = 10; // The higher the number, the stronger the hash but slower the process
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const isMatch = await bcrypt.compare(hashedPassword, user.password);
     console.log(isMatch,password, user.password);
     if (!isMatch) {
       console.log('Invalid match username or password',typeof password, typeof user.password);
@@ -38,7 +39,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Routes
 router.get('/users', verifyToken, async (req, res) => {
   console.log('Incoming request to /users');
   try {
@@ -63,6 +63,7 @@ router.delete('/users/:id', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
+// contact us
 router.get('/contact-us', verifyToken, async (req, res) => {
   console.log('Incoming request to /contact-us');
   try {
