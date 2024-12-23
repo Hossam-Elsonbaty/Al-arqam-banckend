@@ -259,7 +259,7 @@ const transporter = nodemailer.createTransport({
 
 // const authRoutes = require('./routes/auth');
 app.use('/api', authRoutes);
-
+app.options('/send-email', cors());
 // Additional POST route logic...
 
 // Start the server only after the DB is connected
