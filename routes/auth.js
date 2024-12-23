@@ -148,11 +148,12 @@ router.post('/users', verifyToken, async (req, res) => {
 
 router.post('/send-email', verifyToken, async (req, res) => {
   const { emailAddress, emailMessage, emailSubject } = req.body;
+  console.log({ emailAddress, emailMessage, emailSubject });
   if (!emailAddress || !emailMessage || !emailSubject) {
     return res.status(400).json({ message: 'Please fill in all fields.' });
   }
   try {
-    console.log(req.data);
+    console.log(req.body);
     const msg = {
       to: `${emailAddress}`, // Receiver's email
       from: 'armaggg3@gmail.com', // Use a verified sender
@@ -168,7 +169,7 @@ router.post('/send-email', verifyToken, async (req, res) => {
     }).catch((err) => {
       console.log("error:", err.message);
     });
-    res.status(201).json({ success: true, data: newUser });
+    res.status(201).json({ success: true });
   } catch (error) {
     console.error('Error saving user or sending email:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
