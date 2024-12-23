@@ -18,18 +18,21 @@ router.post('/login', async (req, res) => {
   console.log(username, password);
   try {
     const user = await usersModel.findOne({ username });
-    console.log("user:",user);
+    console.log("user:", user);
     if (!user) {
       console.log("Invalid username or password");
       return res.status(400).json({ message: 'Invalid username or password' });
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const isMatch = bcrypt.compare(hashedPassword, user.password);
-    console.log(isMatch,hashedPassword, user.password);
+    
+    // Compare plain text password with stored hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log(isMatch, password, user.password);
     if (!isMatch) {
-      console.log('Invalid match username or password',typeof password, typeof user.password);
+      console.log('Invalid username or password', typeof password, typeof user.password);
       return res.status(400).json({ message: 'Invalid username or password' });
     }
+    
+    // Generate JWT token
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
     res.json({ token, message: 'Login successful' });
   } catch (error) {
@@ -37,6 +40,31 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+// router.post('/login', async (req, res) => {
+//   const { username, password } = req.body;
+//   console.log(username, password);
+//   try {
+//     const user = await usersModel.findOne({ username });
+//     console.log("user:",user);
+//     if (!user) {
+//       console.log("Invalid username or password");
+//       return res.status(400).json({ message: 'Invalid username or password' });
+//     }
+//     const hashedPassword = await bcrypt.hash(password, 10);
+//     const isMatch = bcrypt.compare(hashedPassword, user.password);
+//     console.log(isMatch,hashedPassword, user.password);
+//     if (!isMatch) {
+//       console.log('Invalid match username or password',typeof password, typeof user.password);
+//       return res.status(400).json({ message: 'Invalid username or password' });
+//     }
+//     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
+//     res.json({ token, message: 'Login successful' });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
 
 router.get('/users', verifyToken, async (req, res) => {
   console.log('Incoming request to /users');
