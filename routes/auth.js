@@ -155,7 +155,7 @@ router.post('/send-email', verifyToken, async (req, res) => {
   try {
     console.log(req.body);
     const msg = {
-      to: `${emailAddress}`, // Receiver's email
+      to: [ 'mostafasonbaty0@gmail.com', 'm.sonbaty.contact@gmail.com' ], // Receiver's email
       from: 'armaggg3@gmail.com', // Use a verified sender
       subject: `${emailSubject}`,
       text: `${emailMessage}`,
