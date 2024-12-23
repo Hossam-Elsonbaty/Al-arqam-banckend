@@ -1,12 +1,12 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
-// import cors from 'cors';
+import cors from 'cors';
 import nodemailer from 'nodemailer';
 import models from './models/user.model.js';
 import sgMail from '@sendgrid/mail';
 import authRoutes from "./routes/auth.js";
-const cors = require('cors');
+// const cors = require('cors');
 const { userApplication, contactUsModel, usersModel } = models;
 const app = express();
 dotenv.config();
