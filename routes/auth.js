@@ -193,7 +193,8 @@ router.post('/send-email', verifyToken, async (req, res) => {
       text: `${data.emailMessage}`,
       html: `
               <h1>Hello from Alarqam Academy</h1>
-              <p>We will be so happy if you accepted our invitation to this party</p>            `
+              <p>We will be so happy if you accepted our invitation to this party</p>
+            `
     };
     await sgMail.send(msg)
     .then((res)=>{console.log(res);})
