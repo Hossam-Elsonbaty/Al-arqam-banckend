@@ -1,11 +1,12 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
-import cors from 'cors';
+// import cors from 'cors';
 import nodemailer from 'nodemailer';
 import models from './models/user.model.js';
 import sgMail from '@sendgrid/mail';
-import authRoutes from "./routes/auth.js"
+import authRoutes from "./routes/auth.js";
+const cors = require('cors');
 const { userApplication, contactUsModel, usersModel } = models;
 const app = express();
 dotenv.config();
@@ -20,7 +21,15 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: '*',
 }));
-
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin); // Allow dynamic origin
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204); // Respond to preflight
+  }
+  next();
+});
 const PORT = process.env.PORT || 5555;
 
 // Nodemailer transporter
@@ -259,7 +268,6 @@ const transporter = nodemailer.createTransport({
 
 // const authRoutes = require('./routes/auth');
 app.use('/api', authRoutes);
-app.options('/send-email', cors());
 // Additional POST route logic...
 
 // Start the server only after the DB is connected
