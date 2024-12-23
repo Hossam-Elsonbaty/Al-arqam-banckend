@@ -16,8 +16,9 @@ app.use(express.json());
 // app.use(cors({
 //   origin: '*', // Allows all origins during testing. Replace '*' with your frontend URL in production.
 // }));
+// ['http://localhost:3000', 'https://al-arqam-academy.vercel.app', 'https://alarqam-academy-dashboard.vercel.app']
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://al-arqam-academy.vercel.app', 'https://alarqam-academy-dashboard.vercel.app'],
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: '*',
 }));
