@@ -148,14 +148,14 @@ router.post('/users', verifyToken, async (req, res) => {
 
 router.post('/send-email', verifyToken, async (req, res) => {
   const { emailAddress, emailMessage, emailSubject } = req.body;
-  console.log({ emailAddress, emailMessage, emailSubject });
+  console.log(emailAddress);
   if (!emailAddress || !emailMessage || !emailSubject) {
     return res.status(400).json({ message: 'Please fill in all fields.' });
   }
   try {
     console.log(req.body);
     const msg = {
-      to: [ 'mostafasonbaty0@gmail.com', 'm.sonbaty.contact@gmail.com' ], // Receiver's email
+      to: emailAddress, // Receiver's email
       from: 'armaggg3@gmail.com', // Use a verified sender
       subject: `${emailSubject}`,
       text: `${emailMessage}`,
