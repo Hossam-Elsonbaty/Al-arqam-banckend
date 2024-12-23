@@ -25,7 +25,7 @@ router.post('/login', async (req, res) => {
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const isMatch = bcrypt.compare(hashedPassword, user.password);
-    console.log(isMatch,password, user.password);
+    console.log(isMatch,hashedPassword, user.password);
     if (!isMatch) {
       console.log('Invalid match username or password',typeof password, typeof user.password);
       return res.status(400).json({ message: 'Invalid username or password' });
