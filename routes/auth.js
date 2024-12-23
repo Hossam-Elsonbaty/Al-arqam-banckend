@@ -146,6 +146,35 @@ router.post('/users', verifyToken, async (req, res) => {
   }
 });
 
+router.post('/send-email', verifyToken, async (req, res) => {
+  const { emailAddress, emailMessage, emailSubject } = req.body;
+  if (!emailAddress || !emailMessage || !emailSubject) {
+    return res.status(400).json({ message: 'Please fill in all fields.' });
+  }
+  try {
+    console.log(req.data);
+    const msg = {
+      to: `${emailAddress}`, // Receiver's email
+      from: 'armaggg3@gmail.com', // Use a verified sender
+      subject: `${emailSubject}`,
+      text: `${emailMessage}`,
+      html: `
+              <h1>We will be so happy if you accepted our invitation to this party</h1>
+            `,
+    };
+    console.log("email sending");
+    await sgMail.send(msg).then((res) => {
+      console.log(res);
+    }).catch((err) => {
+      console.log("error:", err.message);
+    });
+    res.status(201).json({ success: true, data: newUser });
+  } catch (error) {
+    console.error('Error saving user or sending email:', error);
+    res.status(500).json({ message: 'Server error, please try again later.' });
+  }
+});
+
 router.post('/contact-us', async (req, res) => {
   const data = req.body;
   console.log(data);
@@ -178,32 +207,32 @@ router.post('/contact-us', async (req, res) => {
   }
 })
 
-router.post('/send-email', verifyToken,async (req, res) => {
-  const data = req.body;
-  console.log(data);
-  if (!data.emailAddress || !data.emailMessage || !data.emailSubject) {
-    return res.status(400).json({ message: 'Please fill in all fields.' });
-  }
-  try {
-    const msg = {
-      to: `${data.emailAddress}`, // Receiver's email
-      from: 'armaggg3@gmail.com', // Use a verified sender
-      subject: `${data.emailSubject}`,
-      text: `${data.emailMessage}`,
-      html: `
-              <h1>Hello from Alarqam Academy</h1>
-              <p>We will be so happy if you accepted our invitation to this party</p>            `
-    };
-    await sgMail.send(msg)
-    .then((res)=>{console.log(res);})
-    .catch((err)=>{console.log(err.message);})
-    // Send the email
-    res.status(201);
-  } catch (error) {
-    console.error('Error saving contact or sending email:', error);
-    res.status(500).json({ message: 'Server error, please try again later.' });
-  }
-})
+// router.post('/send-email', verifyToken,async (req, res) => {
+//   const data = req.body;
+//   console.log(data);
+//   if (!data.emailAddress || !data.emailMessage || !data.emailSubject) {
+//     return res.status(400).json({ message: 'Please fill in all fields.' });
+//   }
+//   try {
+//     const msg = {
+//       to: `${data.emailAddress}`, // Receiver's email
+//       from: 'armaggg3@gmail.com', // Use a verified sender
+//       subject: `${data.emailSubject}`,
+//       text: `${data.emailMessage}`,
+//       html: `
+//               <h1>Hello from Alarqam Academy</h1>
+//               <p>We will be so happy if you accepted our invitation to this party</p>            `
+//     };
+//     await sgMail.send(msg)
+//     .then((res)=>{console.log(res);})
+//     .catch((err)=>{console.log(err.message);})
+//     // Send the email
+//     res.status(201);
+//   } catch (error) {
+//     console.error('Error saving contact or sending email:', error);
+//     res.status(500).json({ message: 'Server error, please try again later.' });
+//   }
+// })
 
 // router.post('/send-email', verifyToken, async (req, res) => {
 //   const data = req.body;
