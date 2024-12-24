@@ -44,7 +44,6 @@ const getUsers = async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 }
-
 const addUser = async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
@@ -81,7 +80,6 @@ const addUser = async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 }
-
 const deleteUser = async (req, res) => {
   const userId = req.params.id;
   try {
@@ -95,7 +93,6 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 }
-
 //  Contact us methods
 const getContactEmails = async (req, res) => {
   console.log('Incoming request to /contact-us');
@@ -108,7 +105,6 @@ const getContactEmails = async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 }
-
 const addContactEmail = async (req, res) => {
   const data = req.body;
   console.log(data);
@@ -140,9 +136,7 @@ const addContactEmail = async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 }
-
 // student Application Handlers
-
 const getStudentApplication = async (req, res) => {
   console.log('Incoming request to /student-application');
   try {
@@ -154,7 +148,6 @@ const getStudentApplication = async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 }
-
 const addStudentApplication = async (req, res) => {
   const application = req.body;
   console.log(application);
@@ -206,9 +199,7 @@ const addStudentApplication = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 }
-
 // Parent Application Handlers
-
 const getParentApplication = async (req, res) => {
   console.log('Incoming request to /contact-us');
   try {
@@ -220,7 +211,6 @@ const getParentApplication = async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 }
-
 const addParentApplication = async (req, res) => {
   const application = req.body;
   if (
@@ -285,7 +275,6 @@ const addParentApplication = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 }
-
 // Send Emails Handler
 const sendEmail =  async (req, res) => {
   const { emailAddress, emailMessage, emailSubject } = req.body;
