@@ -3,8 +3,6 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import cors from 'cors';
 import authRoutes from "./routes/auth.js";
-import Stripe from 'stripe';
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const app = express();
 dotenv.config();
 

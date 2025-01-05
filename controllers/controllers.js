@@ -2,6 +2,8 @@ import models from '../models/user.model.js';
 import sgMail from '@sendgrid/mail';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import Stripe from 'stripe';
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const JWT_SECRET = (process.env.JWT_SECRET)
 const TOKEN_EXPIRY = '168h'; // Adjust as needed
 const { parentApplication, studentApplication, contactUsModel, usersModel } = models;
