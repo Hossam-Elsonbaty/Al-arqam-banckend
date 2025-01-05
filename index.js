@@ -11,7 +11,8 @@ dotenv.config();
 app.use(express.json());
 
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://al-arqam-academy.vercel.app', 'https://alarqam-academy-dashboard.vercel.app'],
+  origin: '*',
+  // origin: ['http://localhost:3000', 'https://al-arqam-academy.vercel.app', 'https://alarqam-academy-dashboard.vercel.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: '*',
 };
