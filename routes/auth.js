@@ -12,7 +12,8 @@ import {
   getStudentApplication,
   getContactEmails,
   addContactEmail,
-  sendEmail
+  sendEmail,
+  createPaymentIntent
 } from '../controllers/controllers.js' 
 console.log();
 
@@ -38,5 +39,7 @@ router.route('/parent-application')
 .post(addParentApplication);
 
 router.post('/send-email', verifyToken, sendEmail);
+
+router.post('/create-new-payment', createPaymentIntent);
 
 export default router
