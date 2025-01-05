@@ -310,13 +310,14 @@ const createPaymentIntent = async (req, res) => {
   const { amount } = req.body;
   try {
     const paymentIntent = await stripe.paymentIntents.create({
-      amount,
+      amount: amount * 100, // Amount in cents
       currency: 'usd',
     });
-    res.status(200).json(paymentIntent);
+    res.status(200).send({
+      clientSecret: paymentIntent.client_secret,
+    });
   } catch (error) {
-    console.error('Error creating payment intent:', error);
-    res.status(500).json({ message: 'Server error, please try again later.' });
+    res.status(500).send({ error: error.message });
   }
 }
 
