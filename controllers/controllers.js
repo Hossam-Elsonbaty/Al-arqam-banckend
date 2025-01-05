@@ -3,6 +3,8 @@ import sgMail from '@sendgrid/mail';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Stripe from 'stripe';
+import dotenv from 'dotenv';
+dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const JWT_SECRET = (process.env.JWT_SECRET)
 const TOKEN_EXPIRY = '168h'; // Adjust as needed
