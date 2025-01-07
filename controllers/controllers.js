@@ -312,36 +312,18 @@ const sendEmail =  async (req, res) => {
 // Payment Handlers
 const createPaymentIntent = async (req, res) => {
   const { amount } = req.body;
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ['card'],
-    line_items: [
-      {
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: 'Al Arqam Academy',
-          },
-          unit_amount: Math.round(amount * 100) , // Amount in cents
-        },
-        quantity: 1,
-      },
-    ],
-    mode: 'payment',
-    success_url: '',
-    cancel_url: '',
-  });
-  res.json({ id: session.id });
-  // try {
-  //   const paymentIntent = await stripe.paymentIntents.create({
-  //     amount: amount * 100, // Amount in cents
-  //     currency: 'usd',
-  //   });
-  //   res.status(200).send({
-  //     clientSecret: paymentIntent.client_secret,
-  //   });
-  // } catch (error) {
-  //   res.status(500).send({ error: error.message });
-  // }
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount, 
+      currency: 'usd',
+      confirm: true
+    });
+    res.status(200).send({
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
 }
 
 export {
