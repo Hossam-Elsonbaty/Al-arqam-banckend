@@ -312,18 +312,22 @@ const sendEmail =  async (req, res) => {
 // Payment Handlers
 const createPaymentIntent = async (req, res) => {
   const { amount } = req.body;
-  try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount, 
-      currency: 'usd',
-      confirm: true
-    });
-    res.status(200).send({
-      clientSecret: paymentIntent.client_secret,
-    });
-  } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
+  const session = await stripe.checkout.sessions.create({
+    line_items: [
+      {
+        price_data:{
+          unit_amount:amount * 100,
+          currency:'usd',
+          product:'prod_RWg5vevbx7w9sV'
+        },
+        quantity: 1,
+      },
+    ],
+    mode: 'payment',
+    success_url: '',
+    cancel_url: '',
+});
+  res.redirect(303, session.url);
 }
 
 export {
