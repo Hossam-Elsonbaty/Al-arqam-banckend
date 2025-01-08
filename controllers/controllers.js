@@ -312,7 +312,6 @@ const sendEmail =  async (req, res) => {
 // Payment Handlers
 const createPaymentIntent = async (req, res) => {
   const { amount } = req.body;
-  console.log(amount);
   if (!amount) {
     return res.status(400).json({ message: 'Error No Amount Provided' });
   }
