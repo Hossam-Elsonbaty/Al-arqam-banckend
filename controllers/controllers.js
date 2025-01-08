@@ -318,7 +318,9 @@ const createPaymentIntent = async (req, res) => {
         price_data:{
           unit_amount:Math.round(amount * 100),
           currency:'usd',
-          product:'prod_RWg5vevbx7w9sV'
+          product_data:{
+            name: 'Test Product',
+          }
         },
         quantity: 1,
       },
