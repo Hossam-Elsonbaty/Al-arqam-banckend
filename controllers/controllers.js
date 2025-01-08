@@ -313,9 +313,9 @@ const sendEmail =  async (req, res) => {
 const createPaymentIntent = async (req, res) => {
   const { amount } = req.body;
   console.log(amount);
-  // if (!amount) {
-  //   return res.status(400).json({ message: 'Error No Amount Provided' });
-  // }
+  if (!amount) {
+    return res.status(400).json({ message: 'Error No Amount Provided' });
+  }
   try {
     const paymentIntent = await stripe.paymentIntents.create({
       amount:amount * 100,
@@ -332,30 +332,6 @@ const createPaymentIntent = async (req, res) => {
       }
     });
   }
-  // const { amount } = req.body;
-  // console.log(amount);
-  // if (!amount) {
-  //   return res.status(400).json({ message: 'Error No Amount Provided' });
-  // }
-  // const session = await stripe.checkout.sessions.create({
-  //   line_items: [
-  //     {
-  //       price_data:{
-  //         unit_amount:Math.round(amount * 100),
-  //         currency:"usd",
-  //         product_data:{
-  //           name: 'Test Product',
-  //         }
-  //       },
-  //       quantity: 1,
-  //     },
-  //   ],
-  //   payment_method_types: ['card'],
-  //   mode: 'payment',
-  //   success_url: '',
-  //   cancel_url: '',
-  // });
-  // res.redirect(303, session.url);
 }
 
 export {
