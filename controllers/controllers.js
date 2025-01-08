@@ -317,7 +317,7 @@ const createPaymentIntent = async (req, res) => {
       {
         price_data:{
           unit_amount:Math.round(amount * 100),
-          currency:'usd',
+          currency:"usd",
           product_data:{
             name: 'Test Product',
           }
@@ -325,6 +325,7 @@ const createPaymentIntent = async (req, res) => {
         quantity: 1,
       },
     ],
+    payment_method_types: ['card'],
     mode: 'payment',
     success_url: '',
     cancel_url: '',
