@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import cors from 'cors';
 import authRoutes from "./routes/auth.js";
+import limiter from './routes/RateLimiterMiddleware.js';
+
 const app = express();
 dotenv.config();
 
@@ -15,7 +17,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 const PORT = process.env.PORT || 5555;
-
+app.use(limiter)
 app.use('/api', authRoutes);
 const startServer = async () => {
   try {
