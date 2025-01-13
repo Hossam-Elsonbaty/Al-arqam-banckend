@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Stripe from 'stripe';
 import dotenv from 'dotenv';
+
 dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const JWT_SECRET = (process.env.JWT_SECRET)
@@ -311,7 +312,7 @@ const sendEmail =  async (req, res) => {
 } 
 // Payment Handlers
 const createPaymentIntent = async (req, res) => {
-  const { amount } = req.body;
+  const { amount, email, name, phoneNumber } = req.body;
   if (!amount) {
     return res.status(400).json({ message: 'Error No Amount Provided' });
   }
@@ -319,6 +320,11 @@ const createPaymentIntent = async (req, res) => {
     const paymentIntent = await stripe.paymentIntents.create({
       amount:amount * 100,
       currency: 'usd',
+      metadata: {
+        email,
+        name,
+        phone:phoneNumber,
+      },
       automatic_payment_methods : {
         enabled: true,
       }
@@ -332,7 +338,51 @@ const createPaymentIntent = async (req, res) => {
     });
   }
 }
+// monthly
+// Function to create a subscription with a custom monthly amount
+const createSubscription = async (req, res) => {
+  const { amount, email, name, phoneNumber } = req.body;
+  console.log(req.body);
+  if (!amount) {
+    return res.status(400).json({ message: 'Error: Missing required fields' });
+  }
+  try {
+    // Create a customer
+    const customer = await stripe.customers.create({
+      email,
+      name,
+      phone: phoneNumber,
+    });
+    // Create a product if you don't already have one
+    const product = await stripe.products.create({
+      name: 'Custom Monthly Subscription',
+    });
+    // Create a pricing plan
+    const price = await stripe.prices.create({
+      unit_amount: amount * 100,
+      currency: 'usd',
+      recurring: { interval: 'month' },
+      product: product.id,
+    });
+    // Create a subscription
+    const subscription = await stripe.subscriptions.create({
+      customer: customer.id,
+      items: [{ price: price.id }],
+      payment_behavior: 'default_incomplete',
+      expand: ['latest_invoice.payment_intent'],
+    });
 
+    res.send({
+      clientSecret: subscription.latest_invoice.payment_intent.client_secret,
+    });
+  } catch (e) {
+    return res.status(400).send({
+      error: {
+        message: e.message,
+      },
+    });
+  }
+};
 export {
   loginAuth,
   addParentApplication,
@@ -345,5 +395,6 @@ export {
   addContactEmail,
   getContactEmails,
   sendEmail,
-  createPaymentIntent
+  createPaymentIntent,
+  createSubscription,
 };

@@ -13,7 +13,8 @@ import {
   getContactEmails,
   addContactEmail,
   sendEmail,
-  createPaymentIntent
+  createPaymentIntent,
+  createSubscription,
 } from '../controllers/controllers.js' 
 console.log();
 
@@ -41,5 +42,7 @@ router.route('/parent-application')
 router.post('/send-email', verifyToken, sendEmail);
 
 router.post('/create-new-payment', createPaymentIntent);
+router.post('/create-subscription', createSubscription);
+// router.post('/create-invoice', createInvoice);
 
 export default router
