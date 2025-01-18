@@ -1,6 +1,8 @@
 
 import express from 'express';
 import verifyToken from './middleware.js';
+import bodyParser from 'body-parser';
+
 import {
   loginAuth,
   addParentApplication,
@@ -15,6 +17,8 @@ import {
   sendEmail,
   createPaymentIntent,
   createSubscription,
+  getPaymentData,
+  getTransactions
 } from '../controllers/controllers.js' 
 console.log();
 
@@ -43,6 +47,8 @@ router.post('/send-email', verifyToken, sendEmail);
 
 router.post('/create-new-payment', createPaymentIntent);
 router.post('/create-subscription', createSubscription);
-// router.post('/create-invoice', createInvoice);
+
+router.post('/webhook', bodyParser.raw({ type: 'application/json' }), getPaymentData);
+router.get('/transactions', getTransactions);
 
 export default router

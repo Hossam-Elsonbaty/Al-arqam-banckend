@@ -39,10 +39,22 @@ const usersSchema = new mongoose.Schema({
   username: String,
   password: String,
 });
+const transactionsSchema  = new mongoose.Schema({
+  customerId: { type: String, required: true },
+  subscriptionId: { type: String, unique: true }, // Ensure uniqueness
+  amount: { type: Number, required: true },
+  status: { type: String, enum: ['incomplete', 'active', 'canceled', 'succeeded'] },
+  metadata: {
+    email: { type: String, required: true },
+    name: { type: String, required: true },
+    phone: { type: String },
+  }
+});
 const models = {
   parentApplication: mongoose.model('parentApplication',parentApplicationSchema),
   studentApplication : mongoose.model('studentApplication',studentApplicationSchema),
   contactUsModel : mongoose.model('contactUsModel',contactUsSchema),
-  usersModel : mongoose.model('usersModel',usersSchema)
+  usersModel : mongoose.model('usersModel',usersSchema),
+  transactionsModel  : mongoose.model('transactions',transactionsSchema )
 }
 export default models

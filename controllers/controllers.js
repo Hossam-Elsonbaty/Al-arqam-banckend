@@ -7,9 +7,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// const endpointSecret  = (process.env.STRIPE_WEBHOOK_SECRET)
 const JWT_SECRET = (process.env.JWT_SECRET)
 const TOKEN_EXPIRY = '168h'; // Adjust as needed
-const { parentApplication, studentApplication, contactUsModel, usersModel } = models;
+const { parentApplication, studentApplication, contactUsModel, usersModel, transactionsModel } = models;
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // login handler
@@ -371,7 +372,6 @@ const createSubscription = async (req, res) => {
       payment_behavior: 'default_incomplete',
       expand: ['latest_invoice.payment_intent'],
     });
-
     res.send({
       clientSecret: subscription.latest_invoice.payment_intent.client_secret,
     });
@@ -381,6 +381,107 @@ const createSubscription = async (req, res) => {
         message: e.message,
       },
     });
+  }
+};
+
+// function to get stripe webhooks 
+const getPaymentData = async (request, response) => {
+  const sig = request.headers['stripe-signature'];
+  console.log(`Type of req.body: ${typeof request.body}`);
+  if (Buffer.isBuffer(request.body)) {
+    console.log(`Raw body (Buffer): ${request.body.toString('utf8')}`);
+  } else {
+    console.log(`Raw body (not Buffer): ${request.body}`);
+  }  try {
+    // Verify the signature
+    const event = stripe.webhooks.constructEvent(request.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    const { type, data } = event;
+    console.log(`Received event: ${type}`);
+    // Handle event types
+    const metadata = {
+      email: data.object.customer_email || '',
+      name: data.object.customer_name || '',
+      phone: data.object.customer_phone || '', // If phone is not mandatory
+    }
+    switch (type) {
+      case 'payment_intent.succeeded': {
+        const paymentIntent = data.object;
+        console.log(`PaymentIntent ${paymentIntent} succeeded!`);
+        // Save transaction to the database
+        await transactionsModel.create({
+          customerId: paymentIntent.customer,
+          amount: paymentIntent.amount / 100,
+          status: 'succeeded',
+          metadata,
+        });
+        break;
+      }
+      case 'invoice.payment_succeeded': {
+        const invoice = data.object;
+        console.log(`Invoice ${invoice.id} payment succeeded!`);
+        // Save or update transaction in the database
+        const existingTransaction = await transactionsModel.findOne({ subscriptionId: invoice.subscription });
+        if (!existingTransaction) {
+          await transactionsModel.create({
+            customerId: invoice.customer,
+            subscriptionId: invoice.subscription,
+            amount: invoice.amount_paid / 100,
+            status: 'succeeded',
+            metadata,
+          });
+        } else {
+          await transactionsModel.updateOne(
+            { subscriptionId: invoice.subscription },
+            { status: 'succeeded' }
+          );
+        }
+        break;
+      }
+      case 'customer.subscription.updated': {
+        const subscription = data.object;
+        console.log(`Subscription ${subscription.id} updated to ${subscription.status}`);
+        const existingTransaction = await transactionsModel.findOne({ subscriptionId: subscription.id });
+        if (!existingTransaction) {
+          await transactionsModel.create({
+            customerId: subscription.customer,
+            subscriptionId: subscription.id,
+            amount: subscription.items.data[0].price.unit_amount / 100,
+            status: subscription.status,
+            metadata,
+          });
+        } else {
+          await transactionsModel.updateOne(
+            { subscriptionId: subscription.id },
+            { status: subscription.status }
+          );
+        }
+        break;
+      }
+      case 'customer.subscription.deleted': {
+        const subscription = data.object;
+        console.log(`Subscription ${subscription.id} canceled.`);
+        await transactionsModel.updateOne(
+          { subscriptionId: subscription.id },
+          { status: 'canceled' }
+        );
+        break;
+      }
+      default:
+        console.log(`Unhandled event type ${type}`);
+    }
+    response.status(200).send();
+  } catch (err) {
+    console.error('Error handling webhook event:', err);
+    response.status(400).send(`Webhook Error: ${err.message}`);
+  }
+}
+// Get Transactions Data 
+const getTransactions = async (req, res) => {
+  try {
+    const transactions = await transactionModel.find().sort({ createdAt: -1 });
+    res.json(transactions);
+  } catch (error) {
+    res.status(500).send({ message: 'Error fetching transactions' });
   }
 };
 export {
@@ -397,4 +498,6 @@ export {
   sendEmail,
   createPaymentIntent,
   createSubscription,
+  getPaymentData,
+  getTransactions
 };

@@ -4,21 +4,30 @@ import { connectDB } from './config/db.js';
 import cors from 'cors';
 import authRoutes from "./routes/auth.js";
 import limiter from './routes/RateLimiterMiddleware.js';
+import bodyParser from 'body-parser';
 
 const app = express();
 dotenv.config();
-
-app.use(express.json());
 const corsOptions = {
   origin: ['http://localhost:3000', 'https://al-arqam-academy.vercel.app', 'https://alarqam-academy-dashboard.vercel.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: '*',
 };
 
+// app.use(bodyParser.json());
+// app.use(express.json());
+app.use((req, res, next) => {
+  if (req.path === '/api/webhook') {
+    next(); 
+  } else {
+    express.json()(req, res, next);
+  }
+});
 app.use(cors(corsOptions));
-const PORT = process.env.PORT || 5555;
 app.use(limiter)
 app.use('/api', authRoutes);
+
+const PORT = process.env.PORT || 5555;
 const startServer = async () => {
   try {
     await connectDB(); 
@@ -32,4 +41,3 @@ const startServer = async () => {
   }
 };
 startServer();
-
