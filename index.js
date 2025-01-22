@@ -3,18 +3,21 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import cors from 'cors';
 import authRoutes from "./routes/auth.js";
-import limiter from './routes/RateLimiterMiddleware.js';
-import bodyParser from 'body-parser';
+// import limiter from './routes/RateLimiterMiddleware.js';
+import { rateLimit } from 'express-rate-limit'
 
 const app = express();
 dotenv.config();
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://al-arqam-academy.vercel.app', 'https://alarqam-academy-dashboard.vercel.app'],
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'https://al-arqam-academy.vercel.app', 'https://alarqam-academy-dashboard.vercel.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: '*',
 };
-
-// app.use(bodyParser.json());
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+});
 // app.use(express.json());
 app.use((req, res, next) => {
   if (req.path === '/api/webhook') {

@@ -38,10 +38,13 @@ const contactUsSchema = new mongoose.Schema({
 const usersSchema = new mongoose.Schema({
   username: String,
   password: String,
+  superuser: { type: Boolean, default: false }
 });
 const transactionsSchema  = new mongoose.Schema({
-  customerId: { type: String, required: true },
-  subscriptionId: { type: String, unique: true }, // Ensure uniqueness
+  customerId: { type: String, required: false },
+  chargeId: { type: String },
+  receipt_url: { type: String },
+  subscriptionId: { type: String, unique: true },
   amount: { type: Number, required: true },
   status: { type: String, enum: ['incomplete', 'active', 'canceled', 'succeeded'] },
   metadata: {

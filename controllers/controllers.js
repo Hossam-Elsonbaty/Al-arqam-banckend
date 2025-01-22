@@ -42,7 +42,7 @@ const loginAuth = async (req, res) => {
 const getUsers = async (req, res) => {
   console.log('Incoming request to /users');
   try {
-    const users = await usersModel.find();
+    const users = await usersModel.find({ superuser: false });
     console.log('Fetched users:', users);
     res.status(200).json(users);
   } catch (error) {
@@ -51,16 +51,18 @@ const getUsers = async (req, res) => {
   }
 }
 const addUser = async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
+  const { username, password, isSuperuser  } = req.body;
+  if (!username || !password || isSuperuser) {
     return res.status(400).json({ message: 'Please fill in all fields.' });
   }
+  console.log(username, password, isSuperuser);
   try {
     const saltRounds = 10; // The higher the number, the stronger the hash but slower the process
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     const newUser = new usersModel({
       username,
       password: hashedPassword,
+      superuser: isSuperuser || false
     });
     await newUser.save();
     const msg = {
@@ -89,10 +91,14 @@ const addUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   const userId = req.params.id;
   try {
-    const deletedUser = await usersModel.findByIdAndDelete(userId);
-    if (!deletedUser) {
-        return res.status(404).json({ message: 'User not found' });
+    const user = await usersModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
+    if (user.superuser) {
+      return res.status(403).json({ message: 'Cannot delete superuser' });
+    }
+    await usersModel.findByIdAndDelete(userId);
     res.status(200).json({ message: 'User deleted successfully' });
   } catch (error) {
     console.error('Error deleting user:', error);
@@ -393,23 +399,40 @@ const getPaymentData = async (request, response) => {
   } else {
     console.log(`Raw body (not Buffer): ${request.body}`);
   }  try {
-    // Verify the signature
     const event = stripe.webhooks.constructEvent(request.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
     const { type, data } = event;
     console.log(`Received event: ${type}`);
-    // Handle event types
     const metadata = {
       email: data.object.customer_email || '',
       name: data.object.customer_name || '',
-      phone: data.object.customer_phone || '', // If phone is not mandatory
+      phone: data.object.customer_phone || '', 
     }
     switch (type) {
+      case 'charge.updated': {
+        const charge = event.data.object;
+        const subscriptionId = charge.subscriptionId || `charge_${charge.id}`;
+        if (charge.status === 'succeeded') {
+          await transactionsModel.create({
+            subscriptionId: subscriptionId,
+            chargeId: charge.id,
+            amount: charge.amount / 100,
+            currency: charge.currency,
+            status: charge.status,
+            metadata: {
+              email: charge.billing_details.email || charge.metadata.email || '',
+              name: charge.billing_details.name || charge.metadata.name || '',
+              phone: charge.billing_details.phone || charge.metadata.phone || '',
+            },
+            receipt_url: charge.receipt_url,
+          });
+        }
+        break;
+      }
       case 'payment_intent.succeeded': {
         const paymentIntent = data.object;
         console.log(`PaymentIntent ${paymentIntent} succeeded!`);
-        // Save transaction to the database
         await transactionsModel.create({
-          customerId: paymentIntent.customer,
+          customerId: paymentIntent.customer || null,
           amount: paymentIntent.amount / 100,
           status: 'succeeded',
           metadata,
@@ -419,7 +442,6 @@ const getPaymentData = async (request, response) => {
       case 'invoice.payment_succeeded': {
         const invoice = data.object;
         console.log(`Invoice ${invoice.id} payment succeeded!`);
-        // Save or update transaction in the database
         const existingTransaction = await transactionsModel.findOne({ subscriptionId: invoice.subscription });
         if (!existingTransaction) {
           await transactionsModel.create({
@@ -478,14 +500,37 @@ const getPaymentData = async (request, response) => {
 // Get Transactions Data 
 const getTransactions = async (req, res) => {
   try {
-    const transactions = await transactionModel.find().sort({ createdAt: -1 });
+    const transactions = await transactionsModel.find().sort({ createdAt: -1 });
     res.json(transactions);
+    console.log(transactions);
   } catch (error) {
     res.status(500).send({ message: 'Error fetching transactions' });
   }
 };
+// Get Statics 
+const getStatics = async (req, res) => {
+  try {
+    const transactions = await transactionsModel.find().sort({ createdAt: -1 });
+    const parentApplications = await parentApplication.find();
+    const studentApplications = await studentApplication.find();
+    const Emails = await contactUsModel.find();
+    
+    const totalApplications = studentApplications.length + parentApplications.length;
+    const totalEmails = Emails.length;
+    
+    const donationsAmount = transactions.reduce((total, transaction) => total + transaction.amount, 0);
+    
+    res.json({ totalApplications, totalEmails, donationsAmount });
+    console.log(parentApplications.length);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    res.status(500).send({ message: 'Error Fetching Data' });
+  }
+};
+
 export {
   loginAuth,
+  getStatics,
   addParentApplication,
   getParentApplication,
   addUser,
