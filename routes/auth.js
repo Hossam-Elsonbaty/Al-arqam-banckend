@@ -19,7 +19,6 @@ import {
   getTransactions,
   getStatics
 } from '../controllers/controllers.js' 
-console.log();
 
 const router = express.Router();
 

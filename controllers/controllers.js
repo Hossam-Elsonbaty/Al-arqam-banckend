@@ -12,22 +12,16 @@ const JWT_SECRET = (process.env.JWT_SECRET)
 const TOKEN_EXPIRY = '168h'; // Adjust as needed
 const { parentApplication, studentApplication, contactUsModel, usersModel, transactionsModel } = models;
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
 // login handler
 const loginAuth = async (req, res) => {
   const { username, password } = req.body;
-  console.log(username, password);
   try {
     const user = await usersModel.findOne({ username });
-    console.log("user:", user);
     if (!user) {
-      console.log("Invalid username or password");
       return res.status(400).json({ message: 'Invalid username or password' });
     }
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log(isMatch, password, user.password);
     if (!isMatch) {
-      console.log('Invalid username or password', typeof password, typeof user.password);
       return res.status(400).json({ message: 'Invalid username or password' });
     }
     // Generate JWT token
@@ -40,13 +34,10 @@ const loginAuth = async (req, res) => {
 }
 // User Handlers
 const getUsers = async (req, res) => {
-  console.log('Incoming request to /users');
   try {
     const users = await usersModel.find({ superuser: false });
-    console.log('Fetched users:', users);
     res.status(200).json(users);
   } catch (error) {
-    console.error('Error fetching data from database:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 }
@@ -55,7 +46,6 @@ const addUser = async (req, res) => {
   if (!username || !password || isSuperuser) {
     return res.status(400).json({ message: 'Please fill in all fields.' });
   }
-  console.log(username, password, isSuperuser);
   try {
     const saltRounds = 10; // The higher the number, the stronger the hash but slower the process
     const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -66,8 +56,8 @@ const addUser = async (req, res) => {
     });
     await newUser.save();
     const msg = {
-      to: 'alarqamacademy101@gmail.com', 
-      from: 'armaggg3@gmail.com', 
+      to: 'info@alarqamacademy.org', 
+      from: 'info@alarqamacademy.org', 
       subject: 'New user added',
       text: `Name: ${username}\nPassword: (hashed)`,
       html: `
@@ -76,15 +66,12 @@ const addUser = async (req, res) => {
               <p>Password: (hashed)</p>
             `,
     };
-    console.log("email sending");
     await sgMail.send(msg).then((res) => {
-      console.log(res);
     }).catch((err) => {
       console.log("error:", err.message);
     });
     res.status(201).json({ success: true, data: newUser });
   } catch (error) {
-    console.error('Error saving user or sending email:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 }
@@ -107,10 +94,8 @@ const deleteUser = async (req, res) => {
 }
 //  Contact us methods
 const getContactEmails = async (req, res) => {
-  console.log('Incoming request to /contact-us');
   try {
     const contacts = await contactUsModel.find();
-    console.log('Fetched contacts:', contacts);
     res.status(200).json(contacts);
   } catch (error) {
     console.error('Error fetching data from database:', error);
@@ -119,16 +104,19 @@ const getContactEmails = async (req, res) => {
 }
 const addContactEmail = async (req, res) => {
   const data = req.body;
-  console.log(data);
+  const subject = 'Inquiry Received'
+  const msg = 'Salam Alaikum!\nThanks for reaching out to AlArqam Academy! A member of our team will get in touch with you soon regarding your inquiry and message.'
+  const footer = `Best Wishes,\nAlArqam Academy Team`
   if (!data.name || !data.email || !data.message) {
     return res.status(400).json({ message: 'Please fill in all fields.' });
   }
   const newContactUs = new contactUsModel(data);
   try {
     await newContactUs.save();
-    const msg = {
-      to: 'alarqamacademy101@gmail.com', // Receiver's email
-      from: 'armaggg3@gmail.com', // Use a verified sender
+    await sendThankYouEmail(data.email, msg, footer,subject)
+    const msg2 = {
+      to: 'info@alarqamacademy.org', // Receiver's email
+      from: 'info@alarqamacademy.org', // Use a verified sender
       subject: 'Contact Us',
       text: `Name: ${data.name}\nEmail: ${data.email}\nMessage: ${data.message}`,
       html: `
@@ -138,10 +126,9 @@ const addContactEmail = async (req, res) => {
               <p>Message: ${data.message}</p>
             `
     };
-    await sgMail.send(msg)
+    await sgMail.send(msg2)
     .then((res)=>{console.log(res);})
     .catch((err)=>{console.log(err.message);})
-    // Send the email
     res.status(201).json({ success: true, data: newContactUs });
   } catch (error) {
     console.error('Error saving contact or sending email:', error);
@@ -150,10 +137,8 @@ const addContactEmail = async (req, res) => {
 }
 // student Application Handlers
 const getStudentApplication = async (req, res) => {
-  console.log('Incoming request to /student-application');
   try {
     const studentApplications = await studentApplication.find();
-    console.log('Fetched contacts:', studentApplications);
     res.status(200).json(studentApplications);
   } catch (error) {
     console.error('Error fetching data from database:', error);
@@ -162,8 +147,9 @@ const getStudentApplication = async (req, res) => {
 }
 const addStudentApplication = async (req, res) => {
   const application = req.body;
-  console.log(application);
-  
+  const subject = 'Application Received'
+  const msg = 'Salam Alaikum! \nThanks for your interest in our programs! This email is to confirm your application submission to AlArqam Academy. Our team will review your application and contact you soon with more details and the next steps in the application process.'
+  const footer = `Sincerely,\nAlArqam Academy Team`
   if (
     !application.firstName || 
     !application.lastName || 
@@ -181,6 +167,7 @@ const addStudentApplication = async (req, res) => {
   const newApplication = new studentApplication(application);
   try {
     await newApplication.save();
+    await sendThankYouEmail(application.email, msg, footer,subject)
     let emailContent = `
       A new application has been submitted:
       <p>Name: ${application.firstName} ${application.lastName}</p>
@@ -192,9 +179,12 @@ const addStudentApplication = async (req, res) => {
       <p>Zip Code: ${application.zipCode}</p>
       <p>Selected Program: ${application.selectedProgram}</p>
     `;
-    const msg = {
-      to: 'alarqamacademy101@gmail.com', // Receiver's email
-      from: 'armaggg3@gmail.com', // Use a verified sender
+    const msg2 = {
+      to: 'info@alarqamacademy.org', // Receiver's email
+      from:{
+        name: 'AlArqam Academy',
+        email: 'info@alarqamacademy.org'
+      },
       subject: 'Contact Us',
       text: emailContent,
       html: `
@@ -202,7 +192,7 @@ const addStudentApplication = async (req, res) => {
               ${emailContent}
             `
     };
-    await sgMail.send(msg)
+    await sgMail.send(msg2)
     .then((res)=>{console.log(res);})
     .catch((err)=>{console.log(err.message);})
     res.status(201).json({ success: true, data: newApplication });
@@ -213,10 +203,8 @@ const addStudentApplication = async (req, res) => {
 }
 // Parent Application Handlers
 const getParentApplication = async (req, res) => {
-  console.log('Incoming request to /contact-us');
   try {
     const parentApplications = await parentApplication.find();
-    console.log('Fetched contacts:', parentApplications);
     res.status(200).json(parentApplications);
   } catch (error) {
     console.error('Error fetching data from database:', error);
@@ -225,6 +213,9 @@ const getParentApplication = async (req, res) => {
 }
 const addParentApplication = async (req, res) => {
   const application = req.body;
+  const subject = 'Application Received'
+  const msg = 'Salam Alaikum! \nThanks for your interest in our programs! This email is to confirm your application submission to AlArqam Academy. Our team will review your application and contact you soon with more details and the next steps in the application process.'
+  const footer = `Sincerely,\nAlArqam Academy Team`
   if (
     !application.firstName || 
     !application.lastName || 
@@ -248,6 +239,7 @@ const addParentApplication = async (req, res) => {
   const newApplication = new parentApplication(application);
   try {
     await newApplication.save();
+    await sendThankYouEmail(application.email, msg, footer,subject)
     let emailContent = `
       A new application has been submitted:
       <p>Name: ${application.firstName} ${application.lastName}</p>
@@ -268,9 +260,12 @@ const addParentApplication = async (req, res) => {
         <p>Selected Program: ${child.selectedProgram}</p>
       `;
     });
-    const msg = {
-      to: 'alarqamacademy101@gmail.com', 
-      from: 'armaggg3@gmail.com', 
+    const msg2 = {
+      to: 'info@alarqamacademy.org', 
+      from:{
+        name: 'AlArqam Academy',
+        email: 'info@alarqamacademy.org'
+      },
       subject: 'Contact Us',
       text: emailContent,
       html: `
@@ -278,7 +273,7 @@ const addParentApplication = async (req, res) => {
               ${emailContent}
             `
     };
-    await sgMail.send(msg)
+    await sgMail.send(msg2)
     .then((res)=>{console.log(res);})
     .catch((err)=>{console.log(err.message);})
     res.status(201).json({ success: true, data: newApplication });
@@ -290,22 +285,19 @@ const addParentApplication = async (req, res) => {
 // Send Emails Handler
 const sendEmail =  async (req, res) => {
   const { emailAddress, emailMessage, emailSubject } = req.body;
-  console.log(emailAddress);
   if (!emailAddress || !emailMessage || !emailSubject) {
     return res.status(400).json({ message: 'Please fill in all fields.' });
   }
   try {
-    console.log(req.body);
     const msg = {
       to: emailAddress, // Receiver's email
-      from: 'armaggg3@gmail.com', // Use a verified sender
+      from:{
+        name: 'AlArqam Academy',
+        email: 'info@alarqamacademy.org'
+      },
       subject: `${emailSubject}`,
       text: `${emailMessage}`,
-      html: `
-              <h1>We will be so happy if you accepted our invitation to this party</h1>
-            `,
     };
-    console.log("email sending");
     await sgMail.sendMultiple(msg).then((res) => {
       console.log(res);
     }).catch((err) => {
@@ -319,7 +311,7 @@ const sendEmail =  async (req, res) => {
 } 
 // Payment Handlers
 const createPaymentIntent = async (req, res) => {
-  const { amount, email, name, phoneNumber } = req.body;
+  const { amount, email, name, phoneNumber} = req.body;
   if (!amount) {
     return res.status(400).json({ message: 'Error No Amount Provided' });
   }
@@ -349,7 +341,6 @@ const createPaymentIntent = async (req, res) => {
 // Function to create a subscription with a custom monthly amount
 const createSubscription = async (req, res) => {
   const { amount, email, name, phoneNumber } = req.body;
-  console.log(req.body);
   if (!amount) {
     return res.status(400).json({ message: 'Error: Missing required fields' });
   }
@@ -392,8 +383,10 @@ const createSubscription = async (req, res) => {
 
 // function to get stripe webhooks 
 const getPaymentData = async (request, response) => {
+  const subject = 'Thank You for Your Generous Donation'
+  const msg = 'Many people say they want to help; fewer actually step up to do it. Thank you and may God reward you for supporting our journey to make a difference for future generations! Your generous contributions sustain our programs!'
+  const footer = `Sincerely,\n AlArqam Academy Team`
   const sig = request.headers['stripe-signature'];
-  console.log(`Type of req.body: ${typeof request.body}`);
   if (Buffer.isBuffer(request.body)) {
     console.log(`Raw body (Buffer): ${request.body.toString('utf8')}`);
   } else {
@@ -401,7 +394,6 @@ const getPaymentData = async (request, response) => {
   }  try {
     const event = stripe.webhooks.constructEvent(request.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
     const { type, data } = event;
-    console.log(`Received event: ${type}`);
     const metadata = {
       email: data.object.customer_email || '',
       name: data.object.customer_name || '',
@@ -412,6 +404,7 @@ const getPaymentData = async (request, response) => {
         const charge = event.data.object;
         const subscriptionId = charge.subscriptionId || `charge_${charge.id}`;
         if (charge.status === 'succeeded') {
+          await sendThankYouEmail(charge.billing_details.email || charge.metadata.email, msg, footer,subject)
           await transactionsModel.create({
             subscriptionId: subscriptionId,
             chargeId: charge.id,
@@ -430,7 +423,7 @@ const getPaymentData = async (request, response) => {
       }
       case 'payment_intent.succeeded': {
         const paymentIntent = data.object;
-        console.log(`PaymentIntent ${paymentIntent} succeeded!`);
+        await sendThankYouEmail(data.object.customer_email, msg, footer,subject)
         await transactionsModel.create({
           customerId: paymentIntent.customer || null,
           amount: paymentIntent.amount / 100,
@@ -441,7 +434,6 @@ const getPaymentData = async (request, response) => {
       }
       case 'invoice.payment_succeeded': {
         const invoice = data.object;
-        console.log(`Invoice ${invoice.id} payment succeeded!`);
         const existingTransaction = await transactionsModel.findOne({ subscriptionId: invoice.subscription });
         if (!existingTransaction) {
           await transactionsModel.create({
@@ -461,7 +453,6 @@ const getPaymentData = async (request, response) => {
       }
       case 'customer.subscription.updated': {
         const subscription = data.object;
-        console.log(`Subscription ${subscription.id} updated to ${subscription.status}`);
         const existingTransaction = await transactionsModel.findOne({ subscriptionId: subscription.id });
         if (!existingTransaction) {
           await transactionsModel.create({
@@ -481,7 +472,6 @@ const getPaymentData = async (request, response) => {
       }
       case 'customer.subscription.deleted': {
         const subscription = data.object;
-        console.log(`Subscription ${subscription.id} canceled.`);
         await transactionsModel.updateOne(
           { subscriptionId: subscription.id },
           { status: 'canceled' }
@@ -506,6 +496,19 @@ const getTransactions = async (req, res) => {
   } catch (error) {
     res.status(500).send({ message: 'Error fetching transactions' });
   }
+};
+const sendThankYouEmail = async (email, msg, footer, subject) => {
+  await sgMail.send({
+    to: email,
+    from:{
+      name: 'AlArqam Academy',
+      email: 'info@alarqamacademy.org'
+    },
+    subject: subject,
+    text: `${msg}\n\n${footer}`,
+  })
+  .then((res)=>{console.log(res);})
+  .catch((err)=>{console.log(err.message);})
 };
 // Get Statics 
 const getStatics = async (req, res) => {
