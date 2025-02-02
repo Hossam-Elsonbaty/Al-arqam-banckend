@@ -7,7 +7,7 @@ import authRoutes from "./routes/auth.js";
 import { rateLimit } from 'express-rate-limit'
 
 const app = express();
-dotenv.config();
+dotenv.config(); 
 const corsOptions = {
   origin: ['https://al-arqam-academy.vercel.app', 
   'https://alarqam-academy-dashboard.vercel.app',
