@@ -19,6 +19,16 @@ import {
   getTransactions,
   getStatics
 } from '../controllers/controllers.js' 
+import cors from 'cors';
+const corsOptions = {
+  origin: ['https://al-arqam-academy.vercel.app', 
+  'https://alarqam-academy-dashboard.vercel.app',
+  'https://dashboard.alarqamacademy.org',
+  'http://localhost:3000',
+  'https://alarqamacademy.org','https://www.alarqamacademy.org'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: '*',
+};
 
 const router = express.Router();
 
@@ -42,6 +52,18 @@ router.route('/parent-application')
 .post(addParentApplication);
 
 router.post('/send-email', verifyToken, sendEmail);
+
+// Handle OPTIONS (Preflight) for /create-new-payment
+router.options('/create-new-payment', cors(corsOptions), (req, res) => {
+  res.status(200).send();
+});
+
+// Main POST endpoint
+router.post(
+  '/create-new-payment',
+  cors(corsOptions), // Apply CORS middleware
+  createPaymentIntent // Your Stripe logic
+);
 
 router.post('/create-new-payment', createPaymentIntent);
 router.post('/create-subscription', createSubscription);
