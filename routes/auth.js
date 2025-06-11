@@ -65,7 +65,7 @@ router.post(
   createPaymentIntent // Your Stripe logic
 );
 
-router.post('/create-new-payment', createPaymentIntent);
+// router.post('/create-new-payment', createPaymentIntent);
 router.post('/create-subscription', createSubscription);
 
 router.post('/webhook', express.raw({ type: 'application/json' }), getPaymentData);
