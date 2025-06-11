@@ -11,7 +11,7 @@ dotenv.config();
 const corsOptions = {
   origin: ['https://al-arqam-academy.vercel.app', 
   'https://alarqam-academy-dashboard.vercel.app',
-  'https://dashboard.alarqamacademy.org',
+  'https://admin.alarqamacademy.org',
   'https://alarqamacademy.org','https://www.alarqamacademy.org'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: '*',
