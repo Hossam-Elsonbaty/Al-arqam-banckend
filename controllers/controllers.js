@@ -330,7 +330,7 @@ const createPaymentIntent = async (req, res) => {
     });
     res.send({clientSecret: paymentIntent.client_secret})
   }catch(e) {
-    return res.status(400).send({
+    return res.status(400).json({
       error: {
         message: e.message,
       }
