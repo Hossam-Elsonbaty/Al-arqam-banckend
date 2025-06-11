@@ -19,17 +19,6 @@ import {
   getTransactions,
   getStatics
 } from '../controllers/controllers.js' 
-import cors from 'cors';
-const corsOptions = {
-  origin: ['https://al-arqam-academy.vercel.app', 
-  'https://alarqam-academy-dashboard.vercel.app',
-  'https://dashboard.alarqamacademy.org',
-  'http://localhost:3000',
-  'https://alarqamacademy.org','https://www.alarqamacademy.org'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: '*',
-};
-
 const router = express.Router();
 
 router.post('/login',loginAuth );
