@@ -54,18 +54,18 @@ router.route('/parent-application')
 router.post('/send-email', verifyToken, sendEmail);
 
 // Handle OPTIONS (Preflight) for /create-new-payment
-router.options('/create-new-payment', cors(corsOptions), (req, res) => {
-  res.status(200).send();
-});
+// router.options('/create-new-payment', cors(corsOptions), (req, res) => {
+//   res.status(200).send();
+// });
 
-// Main POST endpoint
-router.post(
-  '/create-new-payment',
-  cors(corsOptions), // Apply CORS middleware
-  createPaymentIntent // Your Stripe logic
-);
+// // Main POST endpoint
+// router.post(
+//   '/create-new-payment',
+//   cors(corsOptions), // Apply CORS middleware
+//   createPaymentIntent // Your Stripe logic
+// );
 
-// router.post('/create-new-payment', createPaymentIntent);
+router.post('/create-new-payment', createPaymentIntent);
 router.post('/create-subscription', createSubscription);
 
 router.post('/webhook', express.raw({ type: 'application/json' }), getPaymentData);
