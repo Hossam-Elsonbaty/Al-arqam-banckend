@@ -12,6 +12,7 @@ const corsOptions = {
   origin: ['https://al-arqam-academy.vercel.app', 
   'https://alarqam-academy-dashboard.vercel.app',
   'https://admin.alarqamacademy.org',
+  'localhost:3000',
   'https://alarqamacademy.org','https://www.alarqamacademy.org'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: '*',
